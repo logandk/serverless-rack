@@ -1,0 +1,7 @@
+Style/GlobalVars:
+  Exclude:
+    - "**/*.rb"
+
+Performance/Casecmp:
+  Exclude:
+    - "**/*.rb"

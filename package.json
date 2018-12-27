@@ -1,0 +1,56 @@
+{
+  "name": "serverless-rack",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=4.0"
+  },
+  "description": "Serverless Rack Plugin",
+  "author": "logan.dk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/logandk/serverless-rack"
+  },
+  "keywords": [
+    "serverless",
+    "rack",
+    "sinatra",
+    "serverless framework plugin",
+    "serverless applications",
+    "serverless plugins",
+    "api gateway",
+    "lambda",
+    "aws",
+    "aws lambda",
+    "amazon",
+    "amazon web services",
+    "serverless.com"
+  ],
+  "files": [
+    "index.js",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "lib/rack_adapter.rb",
+    "lib/serverless_rack.rb"
+  ],
+  "main": "index.js",
+  "bin": {},
+  "scripts": {
+    "test": "istanbul cover -x '*.test.js' node_modules/mocha/bin/_mocha '*.test.js' -- -R spec",
+    "lint": "eslint *.js"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.0.0",
+    "eslint": "^5.10.0",
+    "istanbul": "^0.4.4",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.2"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "fs-extra": "^7.0.1",
+    "lodash": "^4.17.11"
+  }
+}
