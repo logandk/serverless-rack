@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# This module handles conversion between API Gateway/ALB and Rack requests/responses.
+#
+# Author: Logan Raarup <logan@logan.dk>
+
 require 'rack'
 require 'base64'
 
@@ -30,9 +34,8 @@ def parse_path_info(event)
   # path in their URL. This allows us to strip it out via an optional
   # environment variable.
   if ENV['API_GATEWAY_BASE_PATH']
-    if event['path'].start_with?("/#{ENV['API_GATEWAY_BASE_PATH']}")
-      return event['path']["/#{ENV['API_GATEWAY_BASE_PATH']}".length..-1]
-    end
+    base_path = "/#{ENV['API_GATEWAY_BASE_PATH']}"
+    return event['path'][base_path.length..-1] if event['path'].start_with?(base_path)
   end
 
   event['path']
@@ -47,11 +50,15 @@ def parse_body(event)
 end
 
 def parse_http_headers(headers)
-  headers.map do |key, value|
+  headers = headers.map do |key, value|
     ["HTTP_#{key.upcase.tr('-', '_')}", value]
-  end.reject do |key, _value|
+  end
+
+  headers = headers.reject do |key, _value|
     %w[HTTP_CONTENT_TYPE HTTP_CONTENT_LENGTH].include?(key)
-  end.to_h
+  end
+
+  headers.to_h
 end
 
 def build_environ(event:, context:, headers:, body:)
@@ -59,18 +66,14 @@ def build_environ(event:, context:, headers:, body:)
     'REQUEST_METHOD' => event['httpMethod'],
     'SCRIPT_NAME' => parse_script_name(event, headers),
     'PATH_INFO' => parse_path_info(event),
-    'QUERY_STRING' => Rack::Utils.build_query(
-      event['queryStringParameters'] || {}
-    ),
+    'QUERY_STRING' => Rack::Utils.build_query(event['queryStringParameters'] || {}),
     'SERVER_NAME' => headers['Host'] || 'lambda',
     'SERVER_PORT' => headers['X-Forwarded-Port'] || '80',
-    'CONTENT_LENGTH' => body.length.to_s,
+    'CONTENT_LENGTH' => body.bytesize.to_s,
     'CONTENT_TYPE' => headers['Content-Type'] || '',
     'SERVER_PROTOCOL' => 'HTTP/1.1',
-    'REMOTE_ADDR' =>
-      (event['requestContext']['identity'] || {})['sourceIp'] || '',
-    'REMOTE_USER' =>
-      (event['requestContext']['authorizer'] || {})['principalId'] || '',
+    'REMOTE_ADDR' => (event['requestContext']['identity'] || {})['sourceIp'] || '',
+    'REMOTE_USER' => (event['requestContext']['authorizer'] || {})['principalId'] || '',
     'rack.version' => Rack::VERSION,
     'rack.url_scheme' => headers['X-Forwarded-Proto'] || 'http',
     'rack.input' => StringIO.new(body),
@@ -93,26 +96,32 @@ def format_status_description(event:, status:)
   { 'statusDescription' => "#{status} #{description}" }
 end
 
-def text_mimetype?(headers:)
-  mimetype = headers['Content-Type'] || 'text/plain'
+def text_mime_type?(headers:, text_mime_types:)
+  mime_type = headers['Content-Type'] || 'text/plain'
 
   return false if headers['Content-Encoding']
-  return true if mimetype.start_with?('text/')
-  return true if TEXT_MIME_TYPES.include?(mimetype)
+  return true if mime_type.start_with?('text/')
+  return true if text_mime_types.include?(mime_type)
 
   false
 end
 
-def format_body(body:, headers:)
+def format_body(body:, headers:, text_mime_types:)
   response_data = ''
   body.each { |part| response_data += part }
 
   return {} if response_data.empty?
 
-  if text_mimetype?(headers: headers)
-    { 'body' => response_data, 'isBase64Encoded' => false }
+  if text_mime_type?(headers: headers, text_mime_types: text_mime_types)
+    {
+      'body' => response_data,
+      'isBase64Encoded' => false
+    }
   else
-    { 'body' => Base64.encode64(response_data), 'isBase64Encoded' => true }
+    {
+      'body' => Base64.strict_encode64(response_data),
+      'isBase64Encoded' => true
+    }
   end
 end
 
@@ -158,23 +167,45 @@ def format_headers(headers:)
   { 'headers' => headers }
 end
 
-def format_response(event, status, headers, body)
+def format_response(event:, status:, headers:, body:, text_mime_types:)
   response = { 'statusCode' => status }
-  response.merge!(format_headers(headers: headers))
-  response.merge!(format_status_description(event: event, status: status))
-  response.merge!(format_body(body: body, headers: headers))
+
+  response.merge!(
+    format_headers(headers: headers)
+  )
+
+  response.merge!(
+    format_status_description(event: event, status: status)
+  )
+
+  response.merge!(
+    format_body(
+      body: body,
+      headers: headers,
+      text_mime_types: text_mime_types
+    )
+  )
+
   response
 end
 
-def handle_request(app:, event:, context:)
+def handle_request(app:, event:, context:, config: {})
   return {} if keepalive_event?(event)
 
-  format_response(event, *app.call(
+  status, headers, body = app.call(
     build_environ(
       event: event,
       context: context,
       headers: Rack::Utils::HeaderHash.new(event['headers'] || {}),
       body: parse_body(event)
     )
-  ))
+  )
+
+  format_response(
+    event: event,
+    status: status,
+    headers: headers,
+    body: body,
+    text_mime_types: TEXT_MIME_TYPES + config['text_mime_types'].to_a
+  )
 end

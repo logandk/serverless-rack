@@ -1,6 +1,6 @@
 {
   "name": "serverless-rack",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=4.0"
   },
@@ -27,6 +27,7 @@
     "serverless.com"
   ],
   "files": [
+    "CHANGELOG.md",
     "index.js",
     "LICENSE",
     "package.json",
@@ -38,7 +39,9 @@
   "bin": {},
   "scripts": {
     "test": "istanbul cover -x '*.test.js' node_modules/mocha/bin/_mocha '*.test.js' -- -R spec",
-    "lint": "eslint *.js"
+    "lint": "eslint *.js",
+    "rbtest": "bundle exec rspec",
+    "rblint": "bundle exec rubocop"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -51,6 +54,7 @@
   "dependencies": {
     "bluebird": "^3.5.3",
     "fs-extra": "^7.0.1",
+    "hasbin": "^1.2.3",
     "lodash": "^4.17.11"
   }
 }

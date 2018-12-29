@@ -1,7 +1,26 @@
 Style/GlobalVars:
-  Exclude:
-    - "**/*.rb"
+  Enabled: false
 
 Performance/Casecmp:
-  Exclude:
-    - "**/*.rb"
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Security/Eval:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 90
