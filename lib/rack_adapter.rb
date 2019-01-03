@@ -2,7 +2,7 @@
 
 # This is the entrypoint for Lambda function invocations. It is kept
 # separate, in order to make the main Rack mapping code available as
-# a Gem that can be used without Serverless.
+# a gem that can be used without Serverless.
 #
 # Author: Logan Raarup <logan@logan.dk>
 

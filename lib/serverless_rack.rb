@@ -147,20 +147,21 @@ def all_casings(input_string)
 end
 
 def format_headers(headers:)
-  # TODO: Unpack all headers with multiple values
+  headers = headers.to_hash
 
-  # If there are multiple Set-Cookie headers, create case-mutated variations
-  # in order to pass them through APIGW. This is a hack that's currently
-  # needed.
-  if headers['Set-Cookie']
-    cookies = headers['Set-Cookie'].split("\n")
-    if cookies.size > 1
-      headers.delete('Set-Cookie')
-      headers = headers.to_hash
-      all_casings('Set-Cookie') do |casing|
-        headers[casing] = cookies.shift
-        break if cookies.empty?
-      end
+  # If there are headers multiple occurrences, e.g. Set-Cookie, create
+  # case-mutated variations in order to pass them through APIGW.
+  # This is a hack that's currently needed.
+  headers.keys.each do |key|
+    values = headers[key].split("\n")
+
+    next if values.size < 2
+
+    headers.delete(key)
+
+    all_casings(key) do |casing|
+      headers[casing] = values.shift
+      break if values.empty?
     end
   end
 

@@ -53,8 +53,9 @@
   },
   "dependencies": {
     "bluebird": "^3.5.3",
+    "empty-dir": "^2.0.0",
     "fs-extra": "^7.0.1",
-    "hasbin": "^1.2.3",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "string-argv": "^0.1.1"
   }
 }
