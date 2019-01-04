@@ -1340,6 +1340,8 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.pluginManager.cliOptions.data).to.equal(
           '{"_serverless-rack":{"command":"exec","data":"puts 1+4"}}'
         );
+        expect(plugin.serverless.pluginManager.cliOptions.t).to.be.null;
+        expect(plugin.serverless.pluginManager.cliOptions.type).to.be.null;
         expect(consoleSpy.calledWith("5")).to.be.true;
         sandbox.restore();
       });
@@ -1382,6 +1384,8 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.pluginManager.cliOptions.data).to.equal(
           '{"_serverless-rack":{"command":"exec","data":"puts 1+4"}}'
         );
+        expect(plugin.serverless.pluginManager.cliOptions.t).to.be.null;
+        expect(plugin.serverless.pluginManager.cliOptions.type).to.be.null;
         expect(consoleSpy.calledWith('{"response": "5"}')).to.be.true;
         sandbox.restore();
       });
@@ -1462,6 +1466,8 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.pluginManager.cliOptions.data).to.equal(
           '{"_serverless-rack":{"command":"command","data":"pwd"}}'
         );
+        expect(plugin.serverless.pluginManager.cliOptions.t).to.be.null;
+        expect(plugin.serverless.pluginManager.cliOptions.type).to.be.null;
         expect(consoleSpy.calledWith("non-json output")).to.be.true;
         sandbox.restore();
       });
@@ -1504,6 +1510,8 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.pluginManager.cliOptions.data).to.equal(
           '{"_serverless-rack":{"command":"command","data":"pwd"}}'
         );
+        expect(plugin.serverless.pluginManager.cliOptions.t).to.be.null;
+        expect(plugin.serverless.pluginManager.cliOptions.type).to.be.null;
         expect(consoleSpy.calledWith("/var/task")).to.be.true;
         sandbox.restore();
       });
@@ -1547,6 +1555,8 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.pluginManager.cliOptions.data).to.equal(
           '{"_serverless-rack":{"command":"rake","data":"db:migrate"}}'
         );
+        expect(plugin.serverless.pluginManager.cliOptions.t).to.be.null;
+        expect(plugin.serverless.pluginManager.cliOptions.type).to.be.null;
         expect(consoleSpy.calledWith("rake task output")).to.be.true;
         sandbox.restore();
       });

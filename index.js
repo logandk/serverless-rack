@@ -385,8 +385,10 @@ class ServerlessRack {
         data: data
       }
     });
+    this.serverless.pluginManager.cliOptions.type = null;
     this.serverless.pluginManager.cliOptions.f = this.serverless.pluginManager.cliOptions.function;
     this.serverless.pluginManager.cliOptions.d = this.serverless.pluginManager.cliOptions.data;
+    this.serverless.pluginManager.cliOptions.t = this.serverless.pluginManager.cliOptions.type;
 
     // The invoke plugin prints the response to the console as JSON. When invoking commands
     // remotely, we get a string back and we want it to appear in the console as it would have

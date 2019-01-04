@@ -44,3 +44,4 @@ admin.env
 #RUBY STUFF
 simplecov
 vendor
+*.gem
