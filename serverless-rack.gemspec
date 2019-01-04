@@ -15,7 +15,8 @@ Gem::Specification.new do |s|
     'CHANGELOG.md',
     'Gemfile',
     'LICENSE',
-    'README.md'
+    'README.md',
+    'serverless-rack.gemspec'
   ]
   s.homepage = 'https://github.com/logandk/serverless-rack'
   s.license = 'MIT'
