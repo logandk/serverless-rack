@@ -1,11 +1,10 @@
 language: ruby
 ruby:
-  - "2.5"
+  - "2.5.0"
 
 env:
   - TRAVIS_NODE_VERSION="6"
   - TRAVIS_NODE_VERSION="8"
-  - CODECOV_TOKEN="cbfe30a0-d7f0-4618-9ad6-d63799c09dbe"
 
 install:
   - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
@@ -14,6 +13,7 @@ install:
   - bundle install
 
 script:
+  - export CODECOV_TOKEN="cbfe30a0-d7f0-4618-9ad6-d63799c09dbe"
   - npm test
   - npm run lint
   - npm run rbtest
