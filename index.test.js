@@ -158,6 +158,66 @@ describe("serverless-rack", () => {
       });
     });
 
+    it("warns when rack is not present", () => {
+      let log_messages = [];
+
+      var plugin = new Plugin(
+        {
+          config: { servicePath: "/tmp" },
+          service: {
+            provider: { runtime: "ruby2.5" },
+            functions: { app: { handler: "rack_adapter.handler" } },
+            package: { include: ["sample.txt"] }
+          },
+          classes: { Error: Error },
+          cli: { log: message => log_messages.push(message) }
+        },
+        {}
+      );
+
+      var sandbox = sinon.createSandbox();
+      var copyStub = sandbox.stub(fse, "copyAsync");
+      var writeStub = sandbox.stub(fse, "writeFileAsync");
+      var existsStub = sandbox.stub(fse, "existsSync");
+      existsStub.withArgs("/tmp/Gemfile").returns(true);
+      existsStub.withArgs("/tmp/vendor/bundle/ruby").returns(true);
+      var removeStub = sandbox.stub(fse, "removeSync");
+      var renameStub = sandbox.stub(fse, "renameSync");
+      var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
+      var emptyDirStub = sandbox.stub(emptyDir, "sync");
+      var readdirStub = sandbox.stub(fse, "readdirSync");
+      readdirStub.withArgs("/tmp/vendor/bundle/ruby").returns(["2.5.0"]);
+      readdirStub
+        .withArgs("/tmp/vendor/bundle/ruby/2.5.0/gems")
+        .returns(["somegem-1.2.3"]);
+      var statStub = sandbox
+        .stub(fse, "statSync")
+        .returns({ isDirectory: () => true });
+      var procStub = sandbox
+        .stub(child_process, "spawnSync")
+        .returns({ status: 0 });
+      plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
+        expect(copyStub.called).to.be.true;
+        expect(writeStub.called).to.be.true;
+        expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
+        expect(removeStub.called).to.be.false;
+        expect(renameStub.called).to.be.false;
+        expect(ensureDirStub.called).to.be.false;
+        expect(emptyDirStub.called).to.be.false;
+        expect(
+          procStub.calledWith("bundle", ["install", "--path", "vendor/bundle"])
+        ).to.be.true;
+        expect(readdirStub.calledWith("/tmp/vendor/bundle/ruby")).to.be.true;
+        expect(statStub.calledWith("/tmp/vendor/bundle/ruby/2.5.0")).to.be.true;
+        expect(readdirStub.calledWith("/tmp/vendor/bundle/ruby/2.5.0/gems")).to
+          .be.true;
+        expect(log_messages).to.include(
+          "WARNING: Could not find rack in bundle, please add it to your Gemfile"
+        );
+        sandbox.restore();
+      });
+    });
+
     it("packages rack handler with additional text mime types", () => {
       var plugin = new Plugin(
         {
@@ -242,10 +302,19 @@ describe("serverless-rack", () => {
       var writeStub = sandbox.stub(fse, "writeFileAsync");
       var existsStub = sandbox.stub(fse, "existsSync");
       existsStub.withArgs("/tmp/Gemfile").returns(true);
+      existsStub.withArgs("/tmp/vendor/bundle/ruby").returns(true);
       var removeStub = sandbox.stub(fse, "removeSync");
       var renameStub = sandbox.stub(fse, "renameSync");
       var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
       var emptyDirStub = sandbox.stub(emptyDir, "sync");
+      var readdirStub = sandbox.stub(fse, "readdirSync");
+      readdirStub.withArgs("/tmp/vendor/bundle/ruby").returns(["2.5.0"]);
+      readdirStub
+        .withArgs("/tmp/vendor/bundle/ruby/2.5.0/gems")
+        .returns(["rack-2.0.5"]);
+      var statStub = sandbox
+        .stub(fse, "statSync")
+        .returns({ isDirectory: () => true });
       var procStub = sandbox
         .stub(child_process, "spawnSync")
         .returns({ status: 0 });
@@ -260,6 +329,10 @@ describe("serverless-rack", () => {
         expect(
           procStub.calledWith("bundle", ["install", "--path", "vendor/bundle"])
         ).to.be.true;
+        expect(readdirStub.calledWith("/tmp/vendor/bundle/ruby")).to.be.true;
+        expect(statStub.calledWith("/tmp/vendor/bundle/ruby/2.5.0")).to.be.true;
+        expect(readdirStub.calledWith("/tmp/vendor/bundle/ruby/2.5.0/gems")).to
+          .be.true;
         expect(plugin.serverless.service.package.include).to.have.members([
           "sample.txt",
           "rack_adapter.rb",

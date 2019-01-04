@@ -298,6 +298,43 @@ class ServerlessRack {
     });
   }
 
+  checkRackPresent() {
+    return new BbPromise((resolve, reject) => {
+      if (!this.findHandler()) {
+        return resolve();
+      }
+
+      const bundlePath = path.join(
+        this.serverless.config.servicePath,
+        "vendor",
+        "bundle",
+        "ruby"
+      );
+
+      if (!fse.existsSync(bundlePath)) {
+        return resolve();
+      }
+
+      const rubyVersion = _.find(fse.readdirSync(bundlePath), p =>
+        fse.statSync(path.join(bundlePath, p)).isDirectory()
+      );
+
+      const gemPath = path.join(bundlePath, rubyVersion, "gems");
+
+      const hasRack = _.find(fse.readdirSync(gemPath), p =>
+        p.startsWith("rack-")
+      );
+
+      if (!hasRack) {
+        this.serverless.cli.log(
+          "WARNING: Could not find rack in bundle, please add it to your Gemfile"
+        );
+      }
+
+      resolve();
+    });
+  }
+
   cleanup() {
     const artifacts = [
       "rack_adapter.rb",
@@ -544,7 +581,8 @@ class ServerlessRack {
         .then(this.locateBundler)
         .then(this.packRackHandler)
         .then(this.backupBundle)
-        .then(this.runBundler);
+        .then(this.runBundler)
+        .then(this.checkRackPresent);
 
     const deployBeforeHookWithoutHandler = () =>
       BbPromise.bind(this)
