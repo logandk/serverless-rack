@@ -6,7 +6,7 @@
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 [![Build Status](https://travis-ci.org/logandk/serverless-rack.png?branch=master)](https://travis-ci.org/logandk/serverless-rack)
-[![Coverage Status](https://coveralls.io/repos/github/logandk/serverless-rack/badge.svg?branch=master)](https://coveralls.io/github/logandk/serverless-rack?branch=master)
+[![Coverage Status](https://codecov.io/gh/logandk/serverless-rack/branch/master/graph/badge.svg)](https://codecov.io/gh/logandk/serverless-rack)
 [![Dependency Status](https://david-dm.org/logandk/serverless-rack.png)](https://david-dm.org/logandk/serverless-rack)
 [![Dev Dependency Status](https://david-dm.org/logandk/serverless-rack/dev-status.png)](https://david-dm.org/logandk/serverless-rack?type=dev)
 
