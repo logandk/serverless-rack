@@ -1,6 +1,6 @@
 language: ruby
-ruby:
-  - "2.5.0"
+rvm:
+  - 2.5
 
 env:
   - TRAVIS_NODE_VERSION="6"
