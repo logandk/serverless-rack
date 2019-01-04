@@ -299,7 +299,7 @@ class ServerlessRack {
   }
 
   checkRackPresent() {
-    return new BbPromise((resolve, reject) => {
+    return new BbPromise(resolve => {
       if (!this.findHandler()) {
         return resolve();
       }
