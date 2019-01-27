@@ -327,7 +327,7 @@ from the browser is usually the preferred approach.
 ### Raw context and event
 
 The raw context and event from AWS Lambda are both accessible through the Rack
-request. The following example shows how to access them when using Flask:
+request. The following example shows how to access them when using Sinatra:
 
 ```ruby
 require 'sinatra'
