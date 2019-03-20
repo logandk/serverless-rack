@@ -1,6 +1,6 @@
 {
   "name": "serverless-rack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "node": ">=4.0"
   },
@@ -46,16 +46,16 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.0.0",
-    "eslint": "^5.10.0",
+    "eslint": "^5.15.3",
     "istanbul": "^0.4.4",
-    "mocha": "^5.2.0",
-    "sinon": "^7.2.2"
+    "mocha": "^6.0.2",
+    "sinon": "^7.3.0"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
     "empty-dir": "^2.0.0",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",
-    "string-argv": "^0.1.1"
+    "string-argv": "^0.1.2"
   }
 }

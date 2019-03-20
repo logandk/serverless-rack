@@ -1,2 +1,3 @@
 FROM lambci/lambda:build-ruby2.5
-CMD ["/bin/bash", "-c", "bundle install --path vendor/bundle && chown -Rf `stat -c \"%u:%g\" .` .bundle vendor"]
+ENV BUNDLER_ARGS=""
+CMD ["/bin/bash", "-c", "bundle install --path vendor/bundle ${BUNDLER_ARGS} && chown -Rf `stat -c \"%u:%g\" .` .bundle vendor"]

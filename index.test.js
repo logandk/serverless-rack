@@ -718,6 +718,60 @@ describe("serverless-rack", () => {
       });
     });
 
+    it("bundles with docker and additional bundler args", () => {
+      var plugin = new Plugin(
+        {
+          config: { servicePath: "/tmp" },
+          service: {
+            provider: { runtime: "ruby2.5" },
+            custom: {
+              rack: {
+                dockerizeBundler: true,
+                bundlerArgs: "--verbose --no-color"
+              }
+            }
+          },
+          classes: { Error: Error },
+          cli: { log: () => {} }
+        },
+        {}
+      );
+
+      var sandbox = sinon.createSandbox();
+      var copyStub = sandbox.stub(fse, "copyAsync");
+      var writeStub = sandbox.stub(fse, "writeFileAsync");
+      var existsStub = sandbox.stub(fse, "existsSync");
+      existsStub.withArgs("/tmp/Gemfile").returns(true);
+      var removeStub = sandbox.stub(fse, "removeSync");
+      var renameStub = sandbox.stub(fse, "renameSync");
+      var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
+      var emptyDirStub = sandbox.stub(emptyDir, "sync");
+      var procStub = sandbox
+        .stub(child_process, "spawnSync")
+        .returns({ status: 0 });
+      plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
+        expect(copyStub.called).to.be.false;
+        expect(writeStub.called).to.be.false;
+        expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
+        expect(removeStub.called).to.be.false;
+        expect(renameStub.called).to.be.false;
+        expect(ensureDirStub.called).to.be.false;
+        expect(emptyDirStub.called).to.be.false;
+        expect(
+          procStub.calledWith("docker", [
+            "run",
+            "--rm",
+            "-v",
+            "/tmp:/var/task",
+            "-e",
+            "BUNDLER_ARGS=--verbose --no-color",
+            "logandk/serverless-rack-bundler:ruby2.5"
+          ])
+        ).to.be.true;
+        sandbox.restore();
+      });
+    });
+
     it("skips bundling when no Gemfile exists", () => {
       var plugin = new Plugin(
         {
@@ -780,7 +834,7 @@ describe("serverless-rack", () => {
       });
     });
 
-    it("rejects with bundler stderr output", () => {
+    it("rejects with bundler error output", () => {
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },
@@ -856,7 +910,7 @@ describe("serverless-rack", () => {
       });
     });
 
-    it("rejects with docker stderr output", () => {
+    it("rejects with docker error output", () => {
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },

@@ -247,13 +247,20 @@ class ServerlessRack {
       if (this.dockerizeBundler) {
         this.serverless.cli.log("Packaging gem dependencies using docker...");
 
-        const res = child_process.spawnSync("docker", [
+        let args = [
           "run",
           "--rm",
           "-v",
-          `${this.serverless.config.servicePath}:/var/task`,
-          "logandk/serverless-rack-bundler:ruby2.5"
-        ]);
+          `${this.serverless.config.servicePath}:/var/task`
+        ];
+
+        if (this.bundlerArgs) {
+          args.push("-e", `BUNDLER_ARGS=${this.bundlerArgs}`);
+        }
+
+        args.push("logandk/serverless-rack-bundler:ruby2.5");
+
+        const res = child_process.spawnSync("docker", args);
         if (res.error) {
           if (res.error.code == "ENOENT") {
             return reject(
@@ -265,7 +272,7 @@ class ServerlessRack {
         }
 
         if (res.status != 0) {
-          return reject(res.stderr);
+          return reject(res.stdout);
         }
       } else {
         this.serverless.cli.log("Packaging gem dependencies...");
@@ -290,7 +297,7 @@ class ServerlessRack {
         }
 
         if (res.status != 0) {
-          return reject(res.stderr);
+          return reject(res.stdout);
         }
       }
 
