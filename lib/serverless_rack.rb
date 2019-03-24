@@ -59,7 +59,7 @@ end
 
 def parse_headers(event)
   if event.include? 'multiValueHeaders'
-    p Rack::Utils::HeaderHash.new((event['multiValueHeaders'] || {}).map do |key, value|
+    Rack::Utils::HeaderHash.new((event['multiValueHeaders'] || {}).map do |key, value|
       [key, value.join("\n")]
     end.to_h)
   else
