@@ -41,11 +41,29 @@ def parse_path_info(event)
   event['path']
 end
 
+def parse_query_string(event)
+  if event.include? 'multiValueQueryStringParameters'
+    Rack::Utils.build_query(event['multiValueQueryStringParameters'] || {})
+  else
+    Rack::Utils.build_query(event['queryStringParameters'] || {})
+  end
+end
+
 def parse_body(event)
   if event['isBase64Encoded']
     Base64.decode64(event['body'])
   else
     event['body'] || ''
+  end
+end
+
+def parse_headers(event)
+  if event.include? 'multiValueHeaders'
+    p Rack::Utils::HeaderHash.new((event['multiValueHeaders'] || {}).map do |key, value|
+      [key, value.join("\n")]
+    end.to_h)
+  else
+    Rack::Utils::HeaderHash.new(event['headers'] || {})
   end
 end
 
@@ -66,7 +84,7 @@ def build_environ(event:, context:, headers:, body:)
     'REQUEST_METHOD' => event['httpMethod'],
     'SCRIPT_NAME' => parse_script_name(event, headers),
     'PATH_INFO' => parse_path_info(event),
-    'QUERY_STRING' => Rack::Utils.build_query(event['queryStringParameters'] || {}),
+    'QUERY_STRING' => parse_query_string(event),
     'SERVER_NAME' => headers['Host'] || 'lambda',
     'SERVER_PORT' => headers['X-Forwarded-Port'] || '80',
     'CONTENT_LENGTH' => body.bytesize.to_s,
@@ -146,7 +164,7 @@ def all_casings(input_string)
   end
 end
 
-def format_headers(headers:)
+def format_split_headers(headers:)
   headers = headers.to_hash
 
   # If there are headers multiple occurrences, e.g. Set-Cookie, create
@@ -168,12 +186,20 @@ def format_headers(headers:)
   { 'headers' => headers }
 end
 
+def format_grouped_headers(headers:)
+  { 'multiValueHeaders' => headers.map do |key, value|
+    [key, value.split("\n")]
+  end.to_h }
+end
+
 def format_response(event:, status:, headers:, body:, text_mime_types:)
   response = { 'statusCode' => status }
 
-  response.merge!(
-    format_headers(headers: headers)
-  )
+  if event.include? 'multiValueHeaders'
+    response.merge!(format_grouped_headers(headers: headers))
+  else
+    response.merge!(format_split_headers(headers: headers))
+  end
 
   response.merge!(
     format_status_description(event: event, status: status)
@@ -197,7 +223,7 @@ def handle_request(app:, event:, context:, config: {})
     build_environ(
       event: event,
       context: context,
-      headers: Rack::Utils::HeaderHash.new(event['headers'] || {}),
+      headers: parse_headers(event),
       body: parse_body(event)
     )
   )

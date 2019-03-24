@@ -140,6 +140,44 @@ RSpec.describe 'Rack adapter' do
     )
   end
 
+  it 'handles multi-value query string parameters and headers' do
+    @event['multiValueQueryStringParameters'] = {
+      'param1' => ['value1'],
+      'param2' => %w[value2 value3]
+    }
+
+    # Convert regular headers request to multiValueHeaders
+    @event['multiValueHeaders'] = {}
+    @event['headers'].each do |key, value|
+      @event['multiValueHeaders'][key] ||= []
+      @event['multiValueHeaders'][key] << value
+    end
+
+    response = handler(
+      event: @event,
+      context: { 'memory_limit_in_mb' => '128' }
+    )
+
+    expect(@app.last_environ['QUERY_STRING']).to eq(
+      Rack::Utils.build_query(@event['multiValueQueryStringParameters'])
+    )
+
+    expect(response).to eq(
+      'body' => 'Hello World ☃!',
+      'multiValueHeaders' => {
+        'Content-Length' => ['16'],
+        'Content-Type' => ['text/plain'],
+        'Set-Cookie' => [
+          'CUSTOMER=WILE_E_COYOTE',
+          'PART_NUMBER=ROCKET_LAUNCHER_0002',
+          'LOT_NUMBER=42'
+        ]
+      },
+      'statusCode' => 200,
+      'isBase64Encoded' => false
+    )
+  end
+
   it 'handles a request in china region' do
     @event['headers']['Host'] = 'x.amazonaws.com.cn'
 
