@@ -88,6 +88,15 @@ class ServerlessRack {
     ) {
       config.text_mime_types = this.serverless.service.custom.rack.textMimeTypes;
     }
+    if (
+      this.serverless.service.custom &&
+      this.serverless.service.custom.rack &&
+      _.isString(this.serverless.service.custom.rack.baseConfigFile)
+    ) {
+      config.base_config_file = this.serverless.service.custom.rack.baseConfigFile;
+    } else {
+      config.base_config_file = "config.ru";
+    }
 
     return config;
   }

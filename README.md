@@ -181,6 +181,15 @@ custom:
     bundlerBin: /path/to/bundler
 ```
 
+If your app entrypoint `config.ru` file is not in `./`, set the path & filename explicitly using the `baseConfigFile`
+configuration option:
+
+```yaml
+custom:
+  rack:
+    baseConfigFile: /path/to/config.ru
+```
+
 ### Local server
 
 For convenience, a `sls rack serve` command is provided to run your Rack application
