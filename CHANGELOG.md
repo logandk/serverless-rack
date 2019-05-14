@@ -1,3 +1,9 @@
+# 1.0.2
+
+- Add `configPath` option for setting path to `config.ru`
+
+  _Yousaf Nabi_
+
 # 1.0.1
 
 - Support additional bundler arguments to be passed when using docker (#2)
