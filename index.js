@@ -91,11 +91,9 @@ class ServerlessRack {
     if (
       this.serverless.service.custom &&
       this.serverless.service.custom.rack &&
-      _.isString(this.serverless.service.custom.rack.baseConfigFile)
+      _.isString(this.serverless.service.custom.rack.configPath)
     ) {
-      config.base_config_file = this.serverless.service.custom.rack.baseConfigFile;
-    } else {
-      config.base_config_file = "config.ru";
+      config.config_path = this.serverless.service.custom.rack.configPath;
     }
 
     return config;

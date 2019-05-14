@@ -137,68 +137,7 @@ describe("serverless-rack", () => {
           )
         ).to.be.true;
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
-        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({base_config_file: "config.ru"});
-        expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
-        expect(removeStub.called).to.be.false;
-        expect(renameStub.called).to.be.false;
-        expect(ensureDirStub.called).to.be.false;
-        expect(emptyDirStub.called).to.be.false;
-        expect(
-          procStub.calledWith("bundle", ["install", "--path", "vendor/bundle"])
-        ).to.be.true;
-        sandbox.restore();
-        expect(plugin.serverless.service.package.include).to.have.members([
-          "rack_adapter.rb",
-          "serverless_rack.rb",
-          ".serverless-rack"
-        ]);
-        expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
-        ]);
-      });
-    });
-
-    it("packages rack handler with custom configBaseUrl option", () => {
-      var plugin = new Plugin(
-        {
-          config: { servicePath: "/tmp" },
-          service: {
-            provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
-          },
-          classes: { Error: Error },
-          cli: { log: () => {} }
-        },
-        {}
-      );
-
-      var sandbox = sinon.createSandbox();
-      var copyStub = sandbox.stub(fse, "copyAsync");
-      var writeStub = sandbox.stub(fse, "writeFileAsync");
-      var existsStub = sandbox.stub(fse, "existsSync");
-      existsStub.withArgs("/tmp/Gemfile").returns(true);
-      var removeStub = sandbox.stub(fse, "removeSync");
-      var renameStub = sandbox.stub(fse, "renameSync");
-      var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
-      var emptyDirStub = sandbox.stub(emptyDir, "sync");
-      var procStub = sandbox
-        .stub(child_process, "spawnSync")
-        .returns({ status: 0 });
-      plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
-        expect(
-          copyStub.calledWith(
-            path.resolve(__dirname, "lib", "rack_adapter.rb"),
-            "/tmp/rack_adapter.rb"
-          )
-        ).to.be.true;
-        expect(
-          copyStub.calledWith(
-            path.resolve(__dirname, "lib", "serverless_rack.rb"),
-            "/tmp/serverless_rack.rb"
-          )
-        ).to.be.true;
-        expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
-        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({base_config_file: "config.ru"});
+        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({});
         expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
         expect(removeStub.called).to.be.false;
         expect(renameStub.called).to.be.false;
@@ -310,14 +249,13 @@ describe("serverless-rack", () => {
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
         expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({
-          text_mime_types: ["application/custom+json"],
-          base_config_file: "config.ru"
+          text_mime_types: ["application/custom+json"]
         });
         sandbox.restore();
       });
     });
 
-    it("packages rack handler with custom baseConfigFile", () => {
+    it("packages rack handler with custom configPath", () => {
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },
@@ -326,7 +264,7 @@ describe("serverless-rack", () => {
             functions: { app: { handler: "rack_adapter.handler" } },
             custom: {
               rack: {
-                baseConfigFile: "/path/to/config.ru"
+                configPath: "/path/to/config.ru"
               }
             }
           },
@@ -348,7 +286,7 @@ describe("serverless-rack", () => {
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
         expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({
-          base_config_file: "/path/to/config.ru"
+          config_path: "/path/to/config.ru"
         });
         sandbox.restore();
       });
@@ -1195,7 +1133,7 @@ describe("serverless-rack", () => {
           )
         ).to.be.true;
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
-        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({base_config_file: "config.ru"});
+        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({});
         expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
         expect(removeStub.called).to.be.false;
         expect(renameStub.called).to.be.false;
@@ -1464,7 +1402,7 @@ describe("serverless-rack", () => {
           )
         ).to.be.true;
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
-        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({base_config_file: "config.ru"});
+        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({});
         expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
         expect(removeStub.called).to.be.false;
         expect(renameStub.called).to.be.false;
@@ -1836,7 +1774,7 @@ describe("serverless-rack", () => {
           )
         ).to.be.true;
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
-        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({base_config_file: "config.ru"});
+        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({});
         sandbox.restore();
       });
     });
