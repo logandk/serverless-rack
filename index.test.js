@@ -255,6 +255,43 @@ describe("serverless-rack", () => {
       });
     });
 
+    it("packages rack handler with custom configPath", () => {
+      var plugin = new Plugin(
+        {
+          config: { servicePath: "/tmp" },
+          service: {
+            provider: { runtime: "ruby2.5" },
+            functions: { app: { handler: "rack_adapter.handler" } },
+            custom: {
+              rack: {
+                configPath: "/path/to/config.ru"
+              }
+            }
+          },
+          classes: { Error: Error },
+          cli: { log: () => {} }
+        },
+        {}
+      );
+
+      var sandbox = sinon.createSandbox();
+      sandbox.stub(fse, "copyAsync");
+      var writeStub = sandbox.stub(fse, "writeFileAsync");
+      sandbox.stub(fse, "existsSync");
+      sandbox.stub(fse, "removeSync");
+      sandbox.stub(fse, "renameSync");
+      sandbox.stub(fse, "ensureDirSync");
+      sandbox.stub(emptyDir, "sync");
+      sandbox.stub(child_process, "spawnSync").returns({ status: 0 });
+      plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
+        expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
+        expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({
+          config_path: "/path/to/config.ru"
+        });
+        sandbox.restore();
+      });
+    });
+
     it("cleans up after deployment", () => {
       var plugin = new Plugin(
         {

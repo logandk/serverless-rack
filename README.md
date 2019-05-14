@@ -181,6 +181,17 @@ custom:
     bundlerBin: /path/to/bundler
 ```
 
+### Rack configuration file
+
+If your Rack configuration file (`config.ru`) is not in `./`, set the path explicitly using the `configPath`
+configuration option:
+
+```yaml
+custom:
+  rack:
+    configPath: path/to/config.ru
+```
+
 ### Local server
 
 For convenience, a `sls rack serve` command is provided to run your Rack application

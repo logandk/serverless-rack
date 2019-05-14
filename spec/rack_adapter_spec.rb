@@ -7,7 +7,7 @@ require_relative './mock_app'
 RSpec.describe 'Rack adapter' do
   before(:example) do
     @app = MockApp.new
-    allow(Rack::Builder).to receive(:parse_file).and_return([@app])
+    allow(Rack::Builder).to receive(:parse_file).with('config.ru').and_return([@app])
 
     allow(File).to receive(:read).and_call_original
     allow(File).to receive(:read).with('.serverless-rack').and_return('{}')
@@ -568,5 +568,21 @@ RSpec.describe 'Rack adapter' do
     )
 
     expect(response).to include('Unknown command')
+  end
+
+  it 'loads custom Rack config' do
+    allow(Rack::Builder).to receive(:parse_file).with(
+      'path/to/config.ru'
+    ).and_return(['custom config'])
+
+    allow(File).to receive(:read).and_call_original
+    allow(File).to receive(:read).with('.serverless-rack').and_return(
+      '{"config_path": "path/to/config.ru"}'
+    )
+
+    $app = nil
+    $config = nil
+    load 'rack_adapter.rb'
+    expect($app).to eq('custom config')
   end
 end
