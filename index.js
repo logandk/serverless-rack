@@ -154,7 +154,18 @@ class ServerlessRack {
 
       const backupConfigPath = path.join(backupPath, "config");
 
-      if (fse.existsSync(bundlePath) || fse.existsSync(configPath)) {
+      const lockFilePath = path.join(
+        this.serverless.config.servicePath,
+        "Gemfile.lock"
+      );
+
+      const backupLockFilePath = path.join(backupPath, "Gemfile.lock");
+
+      if (
+        fse.existsSync(bundlePath) ||
+        fse.existsSync(configPath) ||
+        fse.existsSync(lockFilePath)
+      ) {
         this.serverless.cli.log("Backing up current bundle...");
       }
 
@@ -173,6 +184,13 @@ class ServerlessRack {
         } else {
           fse.ensureDirSync(backupPath);
           fse.renameSync(configPath, backupConfigPath);
+        }
+      }
+
+      if (fse.existsSync(lockFilePath)) {
+        if (!fse.existsSync(backupLockFilePath)) {
+          fse.ensureDirSync(backupPath);
+          fse.copySync(lockFilePath, backupLockFilePath);
         }
       }
 
@@ -207,6 +225,13 @@ class ServerlessRack {
 
       const backupConfigPath = path.join(backupPath, "config");
 
+      const lockFilePath = path.join(
+        this.serverless.config.servicePath,
+        "Gemfile.lock"
+      );
+
+      const backupLockFilePath = path.join(backupPath, "Gemfile.lock");
+
       if (fse.existsSync(bundlePath)) {
         fse.removeSync(bundlePath);
       }
@@ -237,6 +262,11 @@ class ServerlessRack {
       if (fse.existsSync(backupConfigPath)) {
         fse.ensureDirSync(path.dirname(configPath));
         fse.renameSync(backupConfigPath, configPath);
+      }
+
+      if (fse.existsSync(backupLockFilePath)) {
+        fse.removeSync(lockFilePath);
+        fse.renameSync(backupLockFilePath, lockFilePath);
       }
 
       fse.removeSync(backupPath);
@@ -306,6 +336,29 @@ class ServerlessRack {
         if (res.status != 0) {
           return reject(res.stdout);
         }
+      }
+
+      resolve();
+    });
+  }
+
+  unpinGemfile() {
+    return new BbPromise(resolve => {
+      if (!this.enableBundler) {
+        return resolve();
+      }
+
+      const lockFilePath = path.join(
+        this.serverless.config.servicePath,
+        "Gemfile.lock"
+      );
+
+      if (fse.existsSync(lockFilePath)) {
+        const contents = fse.readFileSync(lockFilePath, "utf8");
+        fse.writeFileSync(
+          lockFilePath,
+          contents.replace(/^BUNDLED WITH[\S\s]+[\d.]+$/m, "")
+        );
       }
 
       resolve();
@@ -595,6 +648,7 @@ class ServerlessRack {
         .then(this.locateBundler)
         .then(this.packRackHandler)
         .then(this.backupBundle)
+        .then(this.unpinGemfile)
         .then(this.runBundler)
         .then(this.checkRackPresent);
 
@@ -604,6 +658,7 @@ class ServerlessRack {
         .then(this.configurePackaging)
         .then(this.locateBundler)
         .then(this.backupBundle)
+        .then(this.unpinGemfile)
         .then(this.runBundler);
 
     const deployAfterHook = () =>

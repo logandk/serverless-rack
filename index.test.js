@@ -402,7 +402,9 @@ describe("serverless-rack", () => {
       var copyStub = sandbox.stub(fse, "copyAsync");
       var writeStub = sandbox.stub(fse, "writeFileAsync");
       var existsStub = sandbox.stub(fse, "existsSync");
+      var copySyncStub = sandbox.stub(fse, "copySync");
       existsStub.withArgs("/tmp/Gemfile").returns(true);
+      existsStub.withArgs("/tmp/Gemfile.lock").returns(true);
       existsStub.withArgs("/tmp/vendor/bundle").returns(true);
       existsStub.withArgs("/tmp/.bundle/config").returns(true);
       var removeStub = sandbox.stub(fse, "removeSync");
@@ -412,6 +414,10 @@ describe("serverless-rack", () => {
       var procStub = sandbox
         .stub(child_process, "spawnSync")
         .returns({ status: 0 });
+      var readSyncStub = sandbox
+        .stub(fse, "readFileSync")
+        .returns("GEM\n  xxx\n\nBUNDLED WITH\n  2.0.1\n");
+      var writeSyncStub = sandbox.stub(fse, "writeFileSync");
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(copyStub.called).to.be.true;
         expect(writeStub.called).to.be.true;
@@ -423,11 +429,21 @@ describe("serverless-rack", () => {
             "/tmp/.serverless-rack-temp/bundle"
           )
         ).to.be.true;
+        expect(
+          copySyncStub.calledWith(
+            "/tmp/Gemfile.lock",
+            "/tmp/.serverless-rack-temp/Gemfile.lock"
+          )
+        ).to.be.true;
         expect(ensureDirStub.calledWith("/tmp/.serverless-rack-temp")).to.be
           .true;
         expect(emptyDirStub.called).to.be.false;
         expect(
           procStub.calledWith("bundle", ["install", "--path", "vendor/bundle"])
+        ).to.be.true;
+        expect(readSyncStub.calledWith("/tmp/Gemfile.lock")).to.be.true;
+        expect(
+          writeSyncStub.calledWith("/tmp/Gemfile.lock", "GEM\n  xxx\n\n\n")
         ).to.be.true;
         expect(plugin.serverless.service.package.include).to.have.members([
           "sample.txt",
@@ -459,13 +475,18 @@ describe("serverless-rack", () => {
 
       var sandbox = sinon.createSandbox();
       var copyStub = sandbox.stub(fse, "copyAsync");
+      var copySyncStub = sandbox.stub(fse, "copySync");
       var writeStub = sandbox.stub(fse, "writeFileAsync");
       var existsStub = sandbox.stub(fse, "existsSync");
       existsStub.withArgs("/tmp/Gemfile").returns(true);
+      existsStub.withArgs("/tmp/Gemfile.lock").returns(true);
       existsStub.withArgs("/tmp/vendor/bundle").returns(true);
       existsStub.withArgs("/tmp/.bundle/config").returns(true);
       existsStub.withArgs("/tmp/.serverless-rack-temp/config").returns(true);
       existsStub.withArgs("/tmp/.serverless-rack-temp/bundle").returns(true);
+      existsStub
+        .withArgs("/tmp/.serverless-rack-temp/Gemfile.lock")
+        .returns(true);
       var removeStub = sandbox.stub(fse, "removeSync");
       var renameStub = sandbox.stub(fse, "renameSync");
       var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
@@ -473,17 +494,31 @@ describe("serverless-rack", () => {
       var procStub = sandbox
         .stub(child_process, "spawnSync")
         .returns({ status: 0 });
+      var readSyncStub = sandbox
+        .stub(fse, "readFileSync")
+        .returns("GEM\n  xxx\n\n\n");
+      var writeSyncStub = sandbox.stub(fse, "writeFileSync");
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(copyStub.called).to.be.true;
         expect(writeStub.called).to.be.true;
         expect(existsStub.calledWith("/tmp/Gemfile")).to.be.true;
         expect(removeStub.calledWith("/tmp/.bundle/config")).to.be.true;
         expect(removeStub.calledWith("/tmp/vendor/bundle")).to.be.true;
+        expect(
+          copySyncStub.calledWith(
+            "/tmp/Gemfile.lock",
+            "/tmp/.serverless-rack-temp/Gemfile.lock"
+          )
+        ).to.be.false;
         expect(renameStub.called).to.be.false;
         expect(ensureDirStub.called).to.be.false;
         expect(emptyDirStub.called).to.be.false;
         expect(
           procStub.calledWith("bundle", ["install", "--path", "vendor/bundle"])
+        ).to.be.true;
+        expect(readSyncStub.calledWith("/tmp/Gemfile.lock")).to.be.true;
+        expect(
+          writeSyncStub.calledWith("/tmp/Gemfile.lock", "GEM\n  xxx\n\n\n")
         ).to.be.true;
         expect(plugin.serverless.service.package.include).to.have.members([
           "sample.txt",
@@ -514,11 +549,15 @@ describe("serverless-rack", () => {
       var sandbox = sinon.createSandbox();
       var existsStub = sandbox.stub(fse, "existsSync");
       existsStub.withArgs("/tmp/Gemfile").returns(true);
+      existsStub.withArgs("/tmp/Gemfile.lock").returns(true);
       existsStub.withArgs("/tmp/vendor/bundle").returns(true);
       existsStub.withArgs("/tmp/.bundle/config").returns(true);
       existsStub.withArgs("/tmp/.serverless-rack-temp").returns(true);
       existsStub.withArgs("/tmp/.serverless-rack-temp/config").returns(true);
       existsStub.withArgs("/tmp/.serverless-rack-temp/bundle").returns(true);
+      existsStub
+        .withArgs("/tmp/.serverless-rack-temp/Gemfile.lock")
+        .returns(true);
       var removeStub = sandbox.stub(fse, "removeSync");
       var renameStub = sandbox.stub(fse, "renameSync");
       var ensureDirStub = sandbox.stub(fse, "ensureDirSync");
@@ -534,8 +573,11 @@ describe("serverless-rack", () => {
           .true;
         expect(existsStub.calledWith("/tmp/.serverless-rack-temp/bundle")).to.be
           .true;
+        expect(existsStub.calledWith("/tmp/.serverless-rack-temp/Gemfile.lock"))
+          .to.be.true;
         expect(removeStub.calledWith("/tmp/.bundle/config")).to.be.true;
         expect(removeStub.calledWith("/tmp/vendor/bundle")).to.be.true;
+        expect(removeStub.calledWith("/tmp/Gemfile.lock")).to.be.true;
         expect(removeStub.calledWith("/tmp/.bundle")).to.be.true;
         expect(removeStub.calledWith("/tmp/vendor")).to.be.true;
         expect(removeStub.calledWith("/tmp/.serverless-rack-temp")).to.be.true;
@@ -551,6 +593,12 @@ describe("serverless-rack", () => {
           renameStub.calledWith(
             "/tmp/.serverless-rack-temp/bundle",
             "/tmp/vendor/bundle"
+          )
+        ).to.be.true;
+        expect(
+          renameStub.calledWith(
+            "/tmp/.serverless-rack-temp/Gemfile.lock",
+            "/tmp/Gemfile.lock"
           )
         ).to.be.true;
         expect(emptyDirStub.calledWith("/tmp/vendor")).to.be.true;

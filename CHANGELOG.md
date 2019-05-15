@@ -1,6 +1,8 @@
 # 1.0.2
 
-- Add `configPath` option for setting path to `config.ru`
+- Remove `BUNDLED WITH` from Gemfile to allow using different version of
+  Bundler from the one provided by AWS Lambda (#3)
+- Add `configPath` option for setting path to `config.ru` (#4)
 
   _Yousaf Nabi_
 
