@@ -317,7 +317,7 @@ class ServerlessRack {
         let args = ["install", "--path", "vendor/bundle"];
 
         if (this.bundlerArgs) {
-          args.push(...stringArgv(this.bundlerArgs));
+          args.push(...stringArgv.parseArgsStringToArgv(this.bundlerArgs));
         }
 
         const res = child_process.spawnSync(this.bundlerBin, args);

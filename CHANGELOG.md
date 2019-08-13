@@ -1,3 +1,7 @@
+# 1.0.3
+
+- Upgrade dependencies
+
 # 1.0.2
 
 - Remove `BUNDLED WITH` from Gemfile to allow using different version of
