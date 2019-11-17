@@ -442,11 +442,17 @@ class ServerlessRack {
       const port = this.options.port || "5000";
       const host = this.options.host || "localhost";
 
-      var status = child_process.spawnSync(
-        this.bundlerBin,
-        ["exec", "rackup", "--port", port, "--host", host],
-        { stdio: "inherit", cwd: this.serverless.config.servicePath }
-      );
+      var bundlerArgs = ["exec", "rackup", "--port", port, "--host", host];
+
+      var rackConfig = this.getRackHandlerConfiguration();
+      if (rackConfig.config_path) {
+        bundlerArgs.push(rackConfig.config_path);
+      }
+
+      var status = child_process.spawnSync(this.bundlerBin, bundlerArgs, {
+        stdio: "inherit",
+        cwd: this.serverless.config.servicePath
+      });
       if (status.error) {
         if (status.error.code == "ENOENT") {
           reject(

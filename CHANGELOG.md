@@ -1,3 +1,7 @@
+# 1.0.4
+
+- Support `configPath` option when invoking `sls rack serve` (#5)
+
 # 1.0.3
 
 - Upgrade dependencies
