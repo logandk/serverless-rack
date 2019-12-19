@@ -14,7 +14,7 @@ GEM
     parser (2.6.0.0)
       ast (~> 2.4.0)
     psych (3.1.0)
-    rack (2.0.6)
+    rack (2.0.8)
     rainbow (3.0.0)
     rake (12.3.2)
     rspec (3.8.0)
