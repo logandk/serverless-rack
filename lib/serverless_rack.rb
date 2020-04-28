@@ -59,9 +59,11 @@ end
 
 def parse_headers(event)
   if event.include? 'multiValueHeaders'
-    Rack::Utils::HeaderHash.new((event['multiValueHeaders'] || {}).map do |key, value|
-      [key, value.join("\n")]
-    end.to_h)
+    Rack::Utils::HeaderHash.new(
+      (event['multiValueHeaders'] || {}).transform_values do |value|
+        value.join("\n")
+      end
+    )
   else
     Rack::Utils::HeaderHash.new(event['headers'] || {})
   end
@@ -166,11 +168,12 @@ end
 
 def format_split_headers(headers:)
   headers = headers.to_hash
+  keys = headers.keys
 
   # If there are headers multiple occurrences, e.g. Set-Cookie, create
   # case-mutated variations in order to pass them through APIGW.
   # This is a hack that's currently needed.
-  headers.keys.each do |key|
+  keys.each do |key|
     values = headers[key].split("\n")
 
     next if values.size < 2
@@ -187,9 +190,9 @@ def format_split_headers(headers:)
 end
 
 def format_grouped_headers(headers:)
-  { 'multiValueHeaders' => headers.map do |key, value|
-    [key, value.split("\n")]
-  end.to_h }
+  { 'multiValueHeaders' => headers.transform_values do |value|
+    value.split("\n")
+  end }
 end
 
 def format_response(event:, status:, headers:, body:, text_mime_types:)

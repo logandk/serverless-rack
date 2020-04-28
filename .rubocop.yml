@@ -1,7 +1,8 @@
-Style/GlobalVars:
-  Enabled: false
+AllCops:
+  TargetRubyVersion: 2.4
+  NewCops: enable
 
-Performance/Casecmp:
+Style/GlobalVars:
   Enabled: false
 
 Metrics/BlockLength:
@@ -22,5 +23,5 @@ Metrics/AbcSize:
 Security/Eval:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 90

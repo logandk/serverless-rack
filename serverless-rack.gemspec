@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 Gem::Specification.new do |s|
   s.name        = 'serverless-rack'
-  s.version     = '1.0.4'
+  s.version     = '1.0.5'
   s.summary     =
     'Serverless plugin to deploy Ruby Rack applications (Sinatra/Padrino/Cuba etc.) '\
     'and bundle gems'
@@ -21,6 +23,6 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/logandk/serverless-rack'
   s.license = 'MIT'
 
-  s.required_ruby_version = '>= 2.2.0'
+  s.required_ruby_version = '>= 2.4.0'
   s.add_dependency 'rack', '~> 2.0'
 end

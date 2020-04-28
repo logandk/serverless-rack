@@ -17,7 +17,8 @@ class MockApp
   def call(environ)
     @last_environ = environ
 
-    response = Rack::Response.new('Hello World ☃!')
+    response = Rack::Response.new
+    response.write('Hello World ☃!')
     response.set_header('Content-Type', @response_mimetype)
 
     cookies = [
