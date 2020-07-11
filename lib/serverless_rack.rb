@@ -15,17 +15,19 @@ TEXT_MIME_TYPES = [
   'image/svg+xml'
 ].freeze
 
+def base_path
+  "/#{ENV['API_GATEWAY_BASE_PATH']}" unless ENV['API_GATEWAY_BASE_PATH'].to_s.empty?
+end
+
 def keepalive_event?(event)
   ['aws.events', 'serverless-plugin-warmup'].include?(event['source'])
 end
 
 def parse_script_name(event, headers)
-  if ENV['API_GATEWAY_BASE_PATH']
-    "/#{ENV['API_GATEWAY_BASE_PATH']}"
-  elsif (headers['Host'] || '').include?('amazonaws.com')
+  if base_path.nil? && (headers['Host'] || '').include?('amazonaws.com')
     "/#{event['requestContext']['stage']}"
   else
-    ''
+    base_path.to_s
   end
 end
 
@@ -33,12 +35,11 @@ def parse_path_info(event)
   # If a user is using a custom domain on API Gateway, they may have a base
   # path in their URL. This allows us to strip it out via an optional
   # environment variable.
-  if ENV['API_GATEWAY_BASE_PATH']
-    base_path = "/#{ENV['API_GATEWAY_BASE_PATH']}"
-    return event['path'][base_path.length..-1] if event['path'].start_with?(base_path)
+  if base_path && event['path'].start_with?(base_path)
+    event['path'][base_path.length..-1]
+  else
+    event['path']
   end
-
-  event['path']
 end
 
 def parse_query_string(event)
