@@ -7,11 +7,13 @@ const fse = BbPromise.promisifyAll(require("fs-extra"));
 const child_process = require("child_process");
 const stringArgv = require("string-argv");
 const emptyDir = require("empty-dir");
+const crypto = require("crypto");
 
 class ServerlessRack {
   validate() {
     return new BbPromise(resolve => {
       this.backupDir = ".serverless-rack-temp";
+      this.cacheBundleDir = ".serverless-rack-bundle";
       this.enableBundler = fse.existsSync(
         path.join(this.serverless.config.servicePath, "Gemfile")
       );
@@ -282,6 +284,42 @@ class ServerlessRack {
     });
   }
 
+  configureDockerCache() {
+    return new BbPromise(resolve => {
+      if (!this.enableBundler || !this.dockerizeBundler) {
+        return resolve();
+      }
+
+      this.serverless.service.package.exclude.push(`${this.cacheBundleDir}/**`);
+
+      let lockFileHash = crypto.createHash("md5").update(
+        fse.readFileSync("Gemfile.lock") + this.dockerImage, "utf8"
+      ).digest("hex");
+
+      this.dockerBundleCache = {
+        cachePath: path.join(this.serverless.config.servicePath, this.cacheBundleDir),
+        hashPath: path.join(this.serverless.config.servicePath, this.cacheBundleDir, lockFileHash),
+        bundlePath: path.join(this.serverless.config.servicePath, "vendor", "bundle")
+      };
+
+      resolve();
+    });
+  }
+
+  saveDockerCache() {
+    return new BbPromise(resolve => {
+      if (!this.enableBundler || !this.dockerizeBundler) {
+        return resolve();
+      }
+
+      this.serverless.cli.log("Caching gem dependencies...");
+      fse.ensureDirSync(this.dockerBundleCache.cachePath);
+      fse.renameSync(this.dockerBundleCache.bundlePath, this.dockerBundleCache.hashPath);
+
+      resolve();
+    });
+  }
+
   runBundler() {
     return new BbPromise((resolve, reject) => {
       if (!this.enableBundler) {
@@ -289,8 +327,18 @@ class ServerlessRack {
       }
 
       if (this.dockerizeBundler) {
-        this.serverless.cli.log("Packaging gem dependencies using docker...");
-        child_process.execSync(`docker run --rm -v "${this.serverless.config.servicePath}:/var/task" ${this.dockerImage} bundle install --standalone --path vendor/bundle`)
+        if (fse.existsSync(this.dockerBundleCache.hashPath)) {
+          this.serverless.cli.log("Using cached gem dependencies...");
+          fse.renameSync(this.dockerBundleCache.hashPath, this.dockerBundleCache.bundlePath);
+        } else {
+          this.serverless.cli.log("Packaging gem dependencies using docker...");
+          // Remove old caches
+          if (fse.pathExistsSync(this.dockerBundleCache.cachePath)) {
+            fse.rmdirSync(this.dockerBundleCache.cachePath, { recursive: true });
+          }
+
+          child_process.execSync(`docker run --rm -v "${this.serverless.config.servicePath}:/var/task" ${this.dockerImage} bundle install --standalone --path vendor/bundle`);
+        }
       } else {
         this.serverless.cli.log("Packaging gem dependencies...");
 
@@ -635,6 +683,7 @@ class ServerlessRack {
         .then(this.packRackHandler)
         .then(this.backupBundle)
         .then(this.unpinGemfile)
+        .then(this.configureDockerCache)
         .then(this.runBundler)
         .then(this.checkRackPresent);
 
@@ -645,11 +694,13 @@ class ServerlessRack {
         .then(this.locateBundler)
         .then(this.backupBundle)
         .then(this.unpinGemfile)
+        .then(this.configureDockerCache)
         .then(this.runBundler);
 
     const deployAfterHook = () =>
       BbPromise.bind(this)
         .then(this.validate)
+        .then(this.saveDockerCache)
         .then(this.restoreBundle)
         .then(this.cleanup);
 
