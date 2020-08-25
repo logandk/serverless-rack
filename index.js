@@ -16,6 +16,7 @@ class ServerlessRack {
         path.join(this.serverless.config.servicePath, "Gemfile")
       );
       this.dockerizeBundler = false;
+      this.dockerImage = null;
       this.bundlerArgs = null;
 
       if (
@@ -31,6 +32,12 @@ class ServerlessRack {
         }
 
         this.bundlerArgs = this.serverless.service.custom.rack.bundlerArgs;
+
+        if (this.serverless.service.custom.rack.dockerImage) {
+          this.dockerImage = this.serverless.service.custom.rack.dockerImage;
+        } else {
+          this.dockerImage = `lambci/lambda:build-${this.serverless.service.provider.runtime}`;
+        }
       }
 
       resolve();
@@ -283,34 +290,7 @@ class ServerlessRack {
 
       if (this.dockerizeBundler) {
         this.serverless.cli.log("Packaging gem dependencies using docker...");
-
-        let args = [
-          "run",
-          "--rm",
-          "-v",
-          `${this.serverless.config.servicePath}:/var/task`
-        ];
-
-        if (this.bundlerArgs) {
-          args.push("-e", `BUNDLER_ARGS=${this.bundlerArgs}`);
-        }
-
-        args.push("logandk/serverless-rack-bundler:ruby2.5");
-
-        const res = child_process.spawnSync("docker", args);
-        if (res.error) {
-          if (res.error.code == "ENOENT") {
-            return reject(
-              "Unable to run Docker. Please make sure that the docker executable exists in $PATH."
-            );
-          } else {
-            return reject(res.error);
-          }
-        }
-
-        if (res.status != 0) {
-          return reject(res.stdout);
-        }
+        child_process.execSync(`docker run --rm -v "${this.serverless.config.servicePath}:/var/task" ${this.dockerImage} bundle install --standalone --path vendor/bundle`)
       } else {
         this.serverless.cli.log("Packaging gem dependencies...");
 
