@@ -229,6 +229,8 @@ $ sls rack serve -p 8000
 When running locally, an environment variable named `IS_OFFLINE` will be set to `True`.
 So, if you want to know when the application is running locally, check `ENV["IS_OFFLINE"]`.
 
+For use with the `serverless-offline` plugin, run `sls rack install` prior to `sls offline`.
+
 ### Remote command execution
 
 The `rack exec` command lets you execute ruby code remotely:
