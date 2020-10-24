@@ -30,14 +30,15 @@ def invoke_command(event)
     $stderr = output_buffer
 
     meta = event['_serverless-rack']
-    if meta['command'] == 'exec'
+    case meta['command']
+    when 'exec'
       # Evaluate Ruby code
       eval(meta['data'].to_s)
-    elsif meta['command'] == 'command'
+    when 'command'
       # Run shell commands
       require 'open3'
       output_buffer.write(Open3.capture2e(meta['data'].to_s).first)
-    elsif meta['command'] == 'rake'
+    when 'rake'
       # Run rake task
       require 'shellwords'
       require 'rake'

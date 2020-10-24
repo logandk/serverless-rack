@@ -148,8 +148,8 @@ custom:
 ```
 
 The default docker image that will be used will match the runtime you are using.
-That is, if you are using the ruby2.7 runtime, then the docker image will be
-lambci/lambda:build-ruby2.7. You can override the docker image with the
+That is, if you are using the `ruby2.7` runtime, then the docker image will be
+`logandk/serverless-rack-bundler:ruby2.7`. You can override the docker image with the
 `dockerImage` configuration option:
 
 ```yaml

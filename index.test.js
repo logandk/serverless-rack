@@ -46,10 +46,10 @@ describe("serverless-rack", () => {
       var plugin = new Plugin(
         {
           cli: {
-            generateCommandsHelp: command => {
+            generateCommandsHelp: (command) => {
               expect(command).to.deep.equal(["rack"]);
-            }
-          }
+            },
+          },
         },
         {}
       );
@@ -65,7 +65,7 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: { provider: { runtime: "ruby2.5" } },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -103,10 +103,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -150,10 +150,10 @@ describe("serverless-rack", () => {
         expect(plugin.serverless.service.package.include).to.have.members([
           "rack_adapter.rb",
           "serverless_rack.rb",
-          ".serverless-rack"
+          ".serverless-rack",
         ]);
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
       });
     });
@@ -167,10 +167,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: { app: { handler: "rack_adapter.handler" } },
-            package: { include: ["sample.txt"] }
+            package: { include: ["sample.txt"] },
           },
           classes: { Error: Error },
-          cli: { log: message => log_messages.push(message) }
+          cli: { log: (message) => log_messages.push(message) },
         },
         {}
       );
@@ -227,12 +227,12 @@ describe("serverless-rack", () => {
             functions: { app: { handler: "rack_adapter.handler" } },
             custom: {
               rack: {
-                textMimeTypes: ["application/custom+json"]
-              }
-            }
+                textMimeTypes: ["application/custom+json"],
+              },
+            },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -249,7 +249,7 @@ describe("serverless-rack", () => {
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
         expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({
-          text_mime_types: ["application/custom+json"]
+          text_mime_types: ["application/custom+json"],
         });
         sandbox.restore();
       });
@@ -264,12 +264,12 @@ describe("serverless-rack", () => {
             functions: { app: { handler: "rack_adapter.handler" } },
             custom: {
               rack: {
-                configPath: "/path/to/config.ru"
-              }
-            }
+                configPath: "/path/to/config.ru",
+              },
+            },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -286,7 +286,7 @@ describe("serverless-rack", () => {
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(writeStub.calledWith("/tmp/.serverless-rack")).to.be.true;
         expect(JSON.parse(writeStub.lastCall.args[1])).to.deep.equal({
-          config_path: "/path/to/config.ru"
+          config_path: "/path/to/config.ru",
         });
         sandbox.restore();
       });
@@ -298,10 +298,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -326,10 +326,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: { app: { handler: "rack_adapter.handler" } },
-            package: { include: ["sample.txt"] }
+            package: { include: ["sample.txt"] },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -374,10 +374,10 @@ describe("serverless-rack", () => {
           "sample.txt",
           "rack_adapter.rb",
           "serverless_rack.rb",
-          ".serverless-rack"
+          ".serverless-rack",
         ]);
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -390,10 +390,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: { app: { handler: "rack_adapter.handler" } },
-            package: { include: ["sample.txt"] }
+            package: { include: ["sample.txt"] },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -449,10 +449,10 @@ describe("serverless-rack", () => {
           "sample.txt",
           "rack_adapter.rb",
           "serverless_rack.rb",
-          ".serverless-rack"
+          ".serverless-rack",
         ]);
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -465,10 +465,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: { app: { handler: "rack_adapter.handler" } },
-            package: { include: ["sample.txt"] }
+            package: { include: ["sample.txt"] },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -524,10 +524,10 @@ describe("serverless-rack", () => {
           "sample.txt",
           "rack_adapter.rb",
           "serverless_rack.rb",
-          ".serverless-rack"
+          ".serverless-rack",
         ]);
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -538,10 +538,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -612,10 +612,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -661,10 +661,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             custom: { rack: { bundlerBin: "my-bundler" } },
-            package: { include: ["sample.txt"] }
+            package: { include: ["sample.txt"] },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -693,17 +693,17 @@ describe("serverless-rack", () => {
           procStub.calledWith("my-bundler", [
             "install",
             "--path",
-            "vendor/bundle"
+            "vendor/bundle",
           ])
         ).to.be.true;
         expect(plugin.serverless.service.package.include).to.have.members([
           "sample.txt",
           "rack_adapter.rb",
           "serverless_rack.rb",
-          ".serverless-rack"
+          ".serverless-rack",
         ]);
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -715,10 +715,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            custom: { rack: { bundlerArgs: "--verbose --no-color" } }
+            custom: { rack: { bundlerArgs: "--verbose --no-color" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -749,7 +749,7 @@ describe("serverless-rack", () => {
             "--path",
             "vendor/bundle",
             "--verbose",
-            "--no-color"
+            "--no-color",
           ])
         ).to.be.true;
         sandbox.restore();
@@ -762,10 +762,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            custom: { rack: { dockerizeBundler: true } }
+            custom: { rack: { dockerizeBundler: true } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -796,7 +796,7 @@ describe("serverless-rack", () => {
             "--rm",
             "-v",
             "/tmp:/var/task",
-            "logandk/serverless-rack-bundler:ruby2.5"
+            "logandk/serverless-rack-bundler:ruby2.5",
           ])
         ).to.be.true;
         sandbox.restore();
@@ -812,12 +812,12 @@ describe("serverless-rack", () => {
             custom: {
               rack: {
                 dockerizeBundler: true,
-                bundlerArgs: "--verbose --no-color"
-              }
-            }
+                bundlerArgs: "--verbose --no-color",
+              },
+            },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -850,7 +850,7 @@ describe("serverless-rack", () => {
             "/tmp:/var/task",
             "-e",
             "BUNDLER_ARGS=--verbose --no-color",
-            "logandk/serverless-rack-bundler:ruby2.5"
+            "logandk/serverless-rack-bundler:ruby2.5",
           ])
         ).to.be.true;
         sandbox.restore();
@@ -863,7 +863,7 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: { provider: { runtime: "ruby2.5" } },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -890,7 +890,7 @@ describe("serverless-rack", () => {
         expect(emptyDirStub.called).to.be.false;
         expect(procStub.called).to.be.false;
         expect(plugin.serverless.service.package.exclude).to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -902,7 +902,7 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: { provider: { runtime: "ruby2.5" } },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -925,7 +925,7 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: { provider: { runtime: "ruby2.5" } },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -950,7 +950,7 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: { provider: { runtime: "ruby2.5" } },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -975,10 +975,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            custom: { rack: { dockerizeBundler: true } }
+            custom: { rack: { dockerizeBundler: true } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1001,10 +1001,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            custom: { rack: { dockerizeBundler: true } }
+            custom: { rack: { dockerizeBundler: true } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1029,10 +1029,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            custom: { rack: { dockerizeBundler: true } }
+            custom: { rack: { dockerizeBundler: true } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1058,10 +1058,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: { app: { handler: "rack_adapter.handler" } },
-            custom: { rack: { enableBundler: false } }
+            custom: { rack: { enableBundler: false } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1088,7 +1088,7 @@ describe("serverless-rack", () => {
         expect(emptyDirStub.called).to.be.false;
         expect(procStub.called).to.be.false;
         expect(plugin.serverless.service.package.include).not.to.have.members([
-          ".serverless-rack-temp/**"
+          ".serverless-rack-temp/**",
         ]);
         sandbox.restore();
       });
@@ -1098,17 +1098,17 @@ describe("serverless-rack", () => {
   describe("function deployment", () => {
     it("skips packaging for non-rack function", () => {
       var functions = {
-        app: {}
+        app: {},
       };
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: functions
+            functions: functions,
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { functionObj: functions.app }
       );
@@ -1140,17 +1140,17 @@ describe("serverless-rack", () => {
 
     it("packages rack handler", () => {
       var functions = {
-        app: { handler: "rack_adapter.handler" }
+        app: { handler: "rack_adapter.handler" },
       };
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: functions
+            functions: functions,
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { functionObj: functions.app }
       );
@@ -1196,17 +1196,17 @@ describe("serverless-rack", () => {
 
     it("cleans up after deployment", () => {
       var functions = {
-        app: { handler: "rack_adapter.handler" }
+        app: { handler: "rack_adapter.handler" },
       };
       var plugin = new Plugin(
         {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: functions
+            functions: functions,
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { functionObj: functions.app }
       );
@@ -1231,10 +1231,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1258,10 +1258,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1289,10 +1289,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1320,10 +1320,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { port: "8000" }
       );
@@ -1347,10 +1347,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { host: "0.0.0.0" }
       );
@@ -1378,20 +1378,20 @@ describe("serverless-rack", () => {
               runtime: "ruby2.5",
               environment: {
                 SOME_ENV_VAR: 42,
-                ANOTHER_ONE: { Ref: "AWS::StackId" }
-              }
+                ANOTHER_ONE: { Ref: "AWS::StackId" },
+              },
             },
             functions: {
               func1: {
                 handler: "rack_adapter.handler",
-                environment: { SECOND_VAR: 33 }
+                environment: { SECOND_VAR: 33 },
               },
               func2: { handler: "x.x", environment: { THIRD_VAR: 66 } },
-              func3: { handler: "rack_adapter.handler" }
-            }
+              func3: { handler: "rack_adapter.handler" },
+            },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1416,10 +1416,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1471,10 +1471,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1503,10 +1503,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1522,19 +1522,19 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
           cli: { log: () => {} },
           pluginManager: {
             cliOptions: {},
-            run: command =>
-              new BbPromise(resolve => {
+            run: (command) =>
+              new BbPromise((resolve) => {
                 expect(command).to.deep.equal(["invoke"]);
                 console.log('"5"'); // eslint-disable-line no-console
                 resolve();
-              })
-          }
+              }),
+          },
         },
         { command: "puts 1+4" }
       );
@@ -1565,19 +1565,19 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
           cli: { log: () => {} },
           pluginManager: {
             cliOptions: {},
-            run: command =>
-              new BbPromise(resolve => {
+            run: (command) =>
+              new BbPromise((resolve) => {
                 expect(command).to.deep.equal(["invoke"]);
                 console.log('{"response": "5"}'); // eslint-disable-line no-console
                 resolve();
-              })
-          }
+              }),
+          },
         },
         { file: "script.py" }
       );
@@ -1611,10 +1611,10 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "other.handler" } }
+            functions: { app: { handler: "other.handler" } },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { command: "pwd" }
       );
@@ -1629,10 +1629,10 @@ describe("serverless-rack", () => {
         {
           config: { servicePath: "/tmp" },
           service: {
-            provider: { runtime: "ruby2.5" }
+            provider: { runtime: "ruby2.5" },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         {}
       );
@@ -1648,19 +1648,19 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
           cli: { log: () => {} },
           pluginManager: {
             cliOptions: {},
-            run: command =>
-              new BbPromise(resolve => {
+            run: (command) =>
+              new BbPromise((resolve) => {
                 expect(command).to.deep.equal(["invoke"]);
                 console.log("non-json output"); // eslint-disable-line no-console
                 resolve();
-              })
-          }
+              }),
+          },
         },
         { command: "pwd" }
       );
@@ -1691,19 +1691,19 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
           cli: { log: () => {} },
           pluginManager: {
             cliOptions: {},
-            run: command =>
-              new BbPromise(resolve => {
+            run: (command) =>
+              new BbPromise((resolve) => {
                 expect(command).to.deep.equal(["invoke"]);
                 console.log('"/var/task"'); // eslint-disable-line no-console
                 resolve();
-              })
-          }
+              }),
+          },
         },
         { file: "script.sh" }
       );
@@ -1737,19 +1737,19 @@ describe("serverless-rack", () => {
           config: { servicePath: "/tmp" },
           service: {
             provider: { runtime: "ruby2.5" },
-            functions: { app: { handler: "rack_adapter.handler" } }
+            functions: { app: { handler: "rack_adapter.handler" } },
           },
           classes: { Error: Error },
           cli: { log: () => {} },
           pluginManager: {
             cliOptions: {},
-            run: command =>
-              new BbPromise(resolve => {
+            run: (command) =>
+              new BbPromise((resolve) => {
                 expect(command).to.deep.equal(["invoke"]);
                 console.log('"rake task output"'); // eslint-disable-line no-console
                 resolve();
-              })
-          }
+              }),
+          },
         },
         { task: "db:migrate" }
       );
@@ -1779,7 +1779,7 @@ describe("serverless-rack", () => {
     it("installs handler before invocation", () => {
       var functions = {
         app: { handler: "rack_adapter.handler" },
-        other: { handler: "other.handler" }
+        other: { handler: "other.handler" },
       };
       var plugin = new Plugin(
         {
@@ -1787,10 +1787,10 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: functions,
-            getFunction: name => functions[name]
+            getFunction: (name) => functions[name],
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { function: "other" }
       );
@@ -1834,11 +1834,11 @@ describe("serverless-rack", () => {
           service: {
             provider: { runtime: "ruby2.5" },
             functions: {
-              app: { handler: "rack_adapter.handler" }
-            }
+              app: { handler: "rack_adapter.handler" },
+            },
           },
           classes: { Error: Error },
-          cli: { log: () => {} }
+          cli: { log: () => {} },
         },
         { function: "app" }
       );

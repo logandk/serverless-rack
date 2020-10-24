@@ -11,7 +11,7 @@ const crypto = require("crypto");
 
 class ServerlessRack {
   validate() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       this.backupDir = ".serverless-rack-temp";
       this.cacheBundleDir = ".serverless-rack-bundle";
       this.enableBundler = fse.existsSync(
@@ -19,6 +19,7 @@ class ServerlessRack {
       );
       this.dockerizeBundler = false;
       this.dockerImage = null;
+      this.dockerArgs = [];
       this.bundlerArgs = null;
 
       if (
@@ -37,8 +38,15 @@ class ServerlessRack {
 
         if (this.serverless.service.custom.rack.dockerImage) {
           this.dockerImage = this.serverless.service.custom.rack.dockerImage;
+          this.dockerArgs = [
+            "bundle",
+            "install",
+            "--standalone",
+            "--path",
+            "vendor/bundle",
+          ];
         } else {
-          this.dockerImage = `lambci/lambda:build-${this.serverless.service.provider.runtime}`;
+          this.dockerImage = `logandk/serverless-rack-bundler:${this.serverless.service.provider.runtime}`;
         }
       }
 
@@ -47,7 +55,7 @@ class ServerlessRack {
   }
 
   configurePackaging() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       this.serverless.service.package = this.serverless.service.package || {};
       this.serverless.service.package.include =
         this.serverless.service.package.include || [];
@@ -66,16 +74,14 @@ class ServerlessRack {
   }
 
   locateBundler() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (
         this.serverless.service.custom &&
         this.serverless.service.custom.rack &&
         this.serverless.service.custom.rack.bundlerBin
       ) {
         this.serverless.cli.log(
-          `Using Bundler specified in "bundlerBin": ${
-            this.serverless.service.custom.rack.bundlerBin
-          }`
+          `Using Bundler specified in "bundlerBin": ${this.serverless.service.custom.rack.bundlerBin}`
         );
 
         this.bundlerBin = this.serverless.service.custom.rack.bundlerBin;
@@ -132,12 +138,12 @@ class ServerlessRack {
       fse.writeFileAsync(
         path.join(this.serverless.config.servicePath, ".serverless-rack"),
         JSON.stringify(this.getRackHandlerConfiguration())
-      )
+      ),
     ]);
   }
 
   backupBundle() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.enableBundler) {
         return resolve();
       }
@@ -208,7 +214,7 @@ class ServerlessRack {
   }
 
   restoreBundle() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.enableBundler) {
         return resolve();
       }
@@ -285,21 +291,33 @@ class ServerlessRack {
   }
 
   configureDockerCache() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.enableBundler || !this.dockerizeBundler) {
         return resolve();
       }
 
       this.serverless.service.package.exclude.push(`${this.cacheBundleDir}/**`);
 
-      let lockFileHash = crypto.createHash("md5").update(
-        fse.readFileSync("Gemfile.lock") + this.dockerImage, "utf8"
-      ).digest("hex");
+      let lockFileHash = crypto
+        .createHash("md5")
+        .update(fse.readFileSync("Gemfile.lock") + this.dockerImage, "utf8")
+        .digest("hex");
 
       this.dockerBundleCache = {
-        cachePath: path.join(this.serverless.config.servicePath, this.cacheBundleDir),
-        hashPath: path.join(this.serverless.config.servicePath, this.cacheBundleDir, lockFileHash),
-        bundlePath: path.join(this.serverless.config.servicePath, "vendor", "bundle")
+        cachePath: path.join(
+          this.serverless.config.servicePath,
+          this.cacheBundleDir
+        ),
+        hashPath: path.join(
+          this.serverless.config.servicePath,
+          this.cacheBundleDir,
+          lockFileHash
+        ),
+        bundlePath: path.join(
+          this.serverless.config.servicePath,
+          "vendor",
+          "bundle"
+        ),
       };
 
       resolve();
@@ -307,14 +325,17 @@ class ServerlessRack {
   }
 
   saveDockerCache() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.enableBundler || !this.dockerizeBundler) {
         return resolve();
       }
 
       this.serverless.cli.log("Caching gem dependencies...");
       fse.ensureDirSync(this.dockerBundleCache.cachePath);
-      fse.renameSync(this.dockerBundleCache.bundlePath, this.dockerBundleCache.hashPath);
+      fse.renameSync(
+        this.dockerBundleCache.bundlePath,
+        this.dockerBundleCache.hashPath
+      );
 
       resolve();
     });
@@ -329,15 +350,48 @@ class ServerlessRack {
       if (this.dockerizeBundler) {
         if (fse.existsSync(this.dockerBundleCache.hashPath)) {
           this.serverless.cli.log("Using cached gem dependencies...");
-          fse.renameSync(this.dockerBundleCache.hashPath, this.dockerBundleCache.bundlePath);
+          fse.renameSync(
+            this.dockerBundleCache.hashPath,
+            this.dockerBundleCache.bundlePath
+          );
         } else {
           this.serverless.cli.log("Packaging gem dependencies using docker...");
+
           // Remove old caches
           if (fse.pathExistsSync(this.dockerBundleCache.cachePath)) {
-            fse.rmdirSync(this.dockerBundleCache.cachePath, { recursive: true });
+            fse.rmdirSync(this.dockerBundleCache.cachePath, {
+              recursive: true,
+            });
           }
 
-          child_process.execSync(`docker run --rm -v "${this.serverless.config.servicePath}:/var/task" ${this.dockerImage} bundle install --standalone --path vendor/bundle`);
+          let args = [
+            "run",
+            "--rm",
+            "-v",
+            `${this.serverless.config.servicePath}:/var/task`,
+          ];
+
+          if (this.bundlerArgs) {
+            args.push("-e", `BUNDLER_ARGS=${this.bundlerArgs}`);
+          }
+
+          args.push(this.dockerImage);
+          args.push(...this.dockerArgs);
+
+          const res = child_process.spawnSync("docker", args);
+          if (res.error) {
+            if (res.error.code == "ENOENT") {
+              return reject(
+                "Unable to run Docker. Please make sure that the docker executable exists in $PATH."
+              );
+            } else {
+              return reject(res.error);
+            }
+          }
+
+          if (res.status != 0) {
+            return reject(res.stdout);
+          }
         }
       } else {
         this.serverless.cli.log("Packaging gem dependencies...");
@@ -352,9 +406,7 @@ class ServerlessRack {
         if (res.error) {
           if (res.error.code == "ENOENT") {
             return reject(
-              `Unable to run Bundler executable: ${
-                this.bundlerBin
-              }. Use the "bundlerBin" option to set your Bundler executable explicitly.`
+              `Unable to run Bundler executable: ${this.bundlerBin}. Use the "bundlerBin" option to set your Bundler executable explicitly.`
             );
           } else {
             return reject(res.error);
@@ -371,7 +423,7 @@ class ServerlessRack {
   }
 
   unpinGemfile() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.enableBundler) {
         return resolve();
       }
@@ -394,7 +446,7 @@ class ServerlessRack {
   }
 
   checkRackPresent() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       if (!this.findHandler()) {
         return resolve();
       }
@@ -410,13 +462,13 @@ class ServerlessRack {
         return resolve();
       }
 
-      const rubyVersion = _.find(fse.readdirSync(bundlePath), p =>
+      const rubyVersion = _.find(fse.readdirSync(bundlePath), (p) =>
         fse.statSync(path.join(bundlePath, p)).isDirectory()
       );
 
       const gemPath = path.join(bundlePath, rubyVersion, "gems");
 
-      const hasRack = _.find(fse.readdirSync(gemPath), p =>
+      const hasRack = _.find(fse.readdirSync(gemPath), (p) =>
         p.startsWith("rack-")
       );
 
@@ -434,25 +486,25 @@ class ServerlessRack {
     const artifacts = [
       "rack_adapter.rb",
       "serverless_rack.rb",
-      ".serverless-rack"
+      ".serverless-rack",
     ];
 
     return BbPromise.all(
-      _.map(artifacts, artifact =>
+      _.map(artifacts, (artifact) =>
         fse.removeAsync(path.join(this.serverless.config.servicePath, artifact))
       )
     );
   }
 
   loadEnvVars() {
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       const providerEnvVars = _.omitBy(
         this.serverless.service.provider.environment || {},
         _.isObject
       );
       _.merge(process.env, providerEnvVars);
 
-      _.each(this.serverless.service.functions, func => {
+      _.each(this.serverless.service.functions, (func) => {
         if (func.handler == "rack_adapter.handler") {
           const functionEnvVars = _.omitBy(func.environment || {}, _.isObject);
           _.merge(process.env, functionEnvVars);
@@ -479,14 +531,12 @@ class ServerlessRack {
 
       var status = child_process.spawnSync(this.bundlerBin, bundlerArgs, {
         stdio: "inherit",
-        cwd: this.serverless.config.servicePath
+        cwd: this.serverless.config.servicePath,
       });
       if (status.error) {
         if (status.error.code == "ENOENT") {
           reject(
-            `Unable to run Bundler executable: ${
-              this.bundlerBin
-            }. Use the "bundlerBin" option to set your Bundler executable explicitly.`
+            `Unable to run Bundler executable: ${this.bundlerBin}. Use the "bundlerBin" option to set your Bundler executable explicitly.`
           );
         } else {
           reject(status.error);
@@ -500,7 +550,7 @@ class ServerlessRack {
   findHandler() {
     return _.findKey(
       this.serverless.service.functions,
-      fun => fun.handler == "rack_adapter.handler"
+      (fun) => fun.handler == "rack_adapter.handler"
     );
   }
 
@@ -520,8 +570,8 @@ class ServerlessRack {
     this.serverless.pluginManager.cliOptions.data = JSON.stringify({
       "_serverless-rack": {
         command: command,
-        data: data
-      }
+        data: data,
+      },
     });
     this.serverless.pluginManager.cliOptions.type = null;
     this.serverless.pluginManager.cliOptions.f = this.serverless.pluginManager.cliOptions.function;
@@ -534,12 +584,12 @@ class ServerlessRack {
     //
     // Thus, console.log is temporarily hijacked to capture the output and parse it as JSON. This
     // hack is needed to avoid having to call the provider-specific invoke plugins.
-    return new BbPromise(resolve => {
+    return new BbPromise((resolve) => {
       let output = "";
 
       /* eslint-disable no-console */
       const native_log = console.log;
-      console.log = msg => (output += msg + "\n");
+      console.log = (msg) => (output += msg + "\n");
 
       resolve(
         this.serverless.pluginManager
@@ -617,20 +667,20 @@ class ServerlessRack {
             options: {
               port: {
                 usage: "Local server port, defaults to 5000",
-                shortcut: "p"
+                shortcut: "p",
               },
               host: {
-                usage: "Server host, defaults to 'localhost'"
-              }
-            }
+                usage: "Server host, defaults to 'localhost'",
+              },
+            },
           },
           install: {
             usage: "Install Rack handler and bundle for local use",
-            lifecycleEvents: ["install"]
+            lifecycleEvents: ["install"],
           },
           clean: {
             usage: "Remove bundle",
-            lifecycleEvents: ["clean"]
+            lifecycleEvents: ["clean"],
           },
           command: {
             usage: "Execute shell commands or scripts remotely",
@@ -638,13 +688,13 @@ class ServerlessRack {
             options: {
               command: {
                 usage: "Command to execute",
-                shortcut: "c"
+                shortcut: "c",
               },
               file: {
                 usage: "Path to a shell script to execute",
-                shortcut: "f"
-              }
-            }
+                shortcut: "f",
+              },
+            },
           },
           exec: {
             usage: "Evaluate Ruby code remotely",
@@ -652,13 +702,13 @@ class ServerlessRack {
             options: {
               command: {
                 usage: "Ruby code to execute",
-                shortcut: "c"
+                shortcut: "c",
               },
               file: {
                 usage: "Path to a Ruby script to execute",
-                shortcut: "f"
-              }
-            }
+                shortcut: "f",
+              },
+            },
           },
           rake: {
             usage: "Run Rake tasks remotely",
@@ -667,12 +717,12 @@ class ServerlessRack {
               task: {
                 usage: "Rake task",
                 shortcut: "t",
-                required: true
-              }
-            }
-          }
-        }
-      }
+                required: true,
+              },
+            },
+          },
+        },
+      },
     };
 
     const deployBeforeHook = () =>
@@ -755,7 +805,8 @@ class ServerlessRack {
           return BbPromise.resolve();
         }
       },
-      "after:invoke:local:invoke": () => BbPromise.bind(this).then(this.cleanup)
+      "after:invoke:local:invoke": () =>
+        BbPromise.bind(this).then(this.cleanup),
     };
   }
 }

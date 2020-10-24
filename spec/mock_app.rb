@@ -3,9 +3,7 @@
 require 'rack'
 
 class MockApp
-  attr_accessor :cookie_count
-  attr_accessor :response_mimetype
-  attr_accessor :verbose
+  attr_accessor :cookie_count, :response_mimetype, :verbose
   attr_reader :last_environ
 
   def initialize

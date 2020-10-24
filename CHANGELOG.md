@@ -1,3 +1,18 @@
+# 1.0.6
+
+- Upgrade dependencies
+- Add a dockerImage config option to override the docker image to be used for compiling gems (defaults to the lambci ruby images) (#17)
+
+  _Benjamin Curtis_
+
+- Cache the bundle that is created by docker to avoid recompiling gems (#17)
+
+  _Benjamin Curtis_
+
+- Handle empty `API_GATEWAY_BASE_PATH` (#14)
+
+  _Joel Van Horn_
+
 # 1.0.5
 
 - Upgrade dependencies
