@@ -139,13 +139,23 @@ For more information, see https://bundler.io/docs.html.
 
 If your application depends on any gems that include compiled binaries, these
 must be compiled for the lambda execution environment. Enabling the `dockerizeBundler` configuration
-option will fetch and build the gems using a [docker image](https://hub.docker.com/r/logandk/serverless-rack-bundler)
-that emulates the lambda environment:
+option will fetch and build the gems using a docker image that emulates the lambda environment:
 
 ```yaml
 custom:
   rack:
-    dockerizeBundler: false
+    dockerizeBundler: true
+```
+
+The default docker image that will be used will match the runtime you are using.
+That is, if you are using the ruby2.7 runtime, then the docker image will be
+lambci/lambda:build-ruby2.7. You can override the docker image with the
+`dockerImage` configuration option:
+
+```yaml
+custom:
+  rack:
+    dockerImage: lambci/lambda:build-ruby2.5
 ```
 
 ### Bundler configuration
