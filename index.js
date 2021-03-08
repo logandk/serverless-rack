@@ -390,7 +390,7 @@ class ServerlessRack {
           }
 
           if (res.status != 0) {
-            return reject(res.stdout);
+            return reject(res.stdout.toString() || res.stderr.toString());
           }
         }
       } else {
