@@ -378,7 +378,9 @@ class ServerlessRack {
           args.push(this.dockerImage);
           args.push(...this.dockerArgs);
 
-          const res = child_process.spawnSync("docker", args);
+          const res = child_process.spawnSync("docker", args, {
+            stdio: "inherit"
+          });
           if (res.error) {
             if (res.error.code == "ENOENT") {
               return reject(
