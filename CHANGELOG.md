@@ -1,3 +1,9 @@
+# 1.0.7
+
+- Improved error handling for Docker processes (#20 and #21)
+
+  _Shalvah_
+
 # 1.0.6
 
 - Upgrade dependencies
