@@ -670,9 +670,11 @@ class ServerlessRack {
               port: {
                 usage: "Local server port, defaults to 5000",
                 shortcut: "p",
+                type: "string",
               },
               host: {
                 usage: "Server host, defaults to 'localhost'",
+                type: "string",
               },
             },
           },
@@ -691,10 +693,12 @@ class ServerlessRack {
               command: {
                 usage: "Command to execute",
                 shortcut: "c",
+                type: "string",
               },
               file: {
                 usage: "Path to a shell script to execute",
                 shortcut: "f",
+                type: "string",
               },
             },
           },
@@ -705,10 +709,12 @@ class ServerlessRack {
               command: {
                 usage: "Ruby code to execute",
                 shortcut: "c",
+                type: "string",
               },
               file: {
                 usage: "Path to a Ruby script to execute",
                 shortcut: "f",
+                type: "string",
               },
             },
           },
@@ -720,6 +726,7 @@ class ServerlessRack {
                 usage: "Rake task",
                 shortcut: "t",
                 required: true,
+                type: "string",
               },
             },
           },
