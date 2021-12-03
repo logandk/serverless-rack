@@ -587,4 +587,15 @@ RSpec.describe 'Rack adapter' do
     load 'rack_adapter.rb'
     expect($app).to eq('custom config')
   end
+
+  context 'when the response body can be closed' do
+    let(:buffer) { StringIO.new('Hello World!') }
+    let(:app) { ->(_env) { [200, { 'Content-Type' => 'text/plain' }, buffer] } }
+
+    it 'closes the response body after formatting' do
+      handler(event: @event, context: {})
+
+      expect(buffer).to be_closed
+    end
+  end
 end
