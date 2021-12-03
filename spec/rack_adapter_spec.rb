@@ -5,8 +5,10 @@ require 'rake'
 require_relative './mock_app'
 
 RSpec.describe 'Rack adapter' do
+  let(:app) { MockApp.new }
+
   before(:example) do
-    @app = MockApp.new
+    @app = app
     allow(Rack::Builder).to receive(:parse_file).with('config.ru').and_return([@app])
 
     allow(File).to receive(:read).and_call_original
