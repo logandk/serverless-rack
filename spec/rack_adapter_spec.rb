@@ -5,8 +5,10 @@ require 'rake'
 require_relative './mock_app'
 
 RSpec.describe 'Rack adapter' do
+  let(:app) { MockApp.new }
+
   before(:example) do
-    @app = MockApp.new
+    @app = app
     allow(Rack::Builder).to receive(:parse_file).with('config.ru').and_return([@app])
 
     allow(File).to receive(:read).and_call_original
@@ -584,5 +586,16 @@ RSpec.describe 'Rack adapter' do
     $config = nil
     load 'rack_adapter.rb'
     expect($app).to eq('custom config')
+  end
+
+  context 'when the response body can be closed' do
+    let(:buffer) { StringIO.new('Hello World!') }
+    let(:app) { ->(_env) { [200, { 'Content-Type' => 'text/plain' }, buffer] } }
+
+    it 'closes the response body after formatting' do
+      handler(event: @event, context: {})
+
+      expect(buffer).to be_closed
+    end
   end
 end

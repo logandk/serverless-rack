@@ -129,7 +129,11 @@ end
 
 def format_body(body:, headers:, text_mime_types:)
   response_data = ''
-  body.each { |part| response_data += part }
+  begin
+    body.each { |part| response_data += part }
+  ensure
+    body.close if body.respond_to?(:close)
+  end
 
   return {} if response_data.empty?
 
