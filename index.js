@@ -406,7 +406,10 @@ class ServerlessRack {
           args.push(...stringArgv.parseArgsStringToArgv(this.bundlerArgs));
         }
 
-        const res = child_process.spawnSync(this.bundlerBin, args, {shell: os.platform() === 'win32'});
+        const res = child_process.spawnSync(this.bundlerBin, args, {
+          shell: os.platform() === 'win32',
+          stdio: "inherit"
+        });
         if (res.error) {
           if (res.error.code == "ENOENT") {
             return reject(
