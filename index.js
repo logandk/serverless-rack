@@ -760,8 +760,7 @@ class ServerlessRack {
       BbPromise.bind(this)
         .then(this.validate)
         .then(this.saveDockerCache)
-        .then(this.restoreBundle)
-        .then(this.cleanup);
+        .then(this.restoreBundle);
 
     this.hooks = {
       "rack:rack": () => {
@@ -814,8 +813,6 @@ class ServerlessRack {
           return BbPromise.resolve();
         }
       },
-      "after:invoke:local:invoke": () =>
-        BbPromise.bind(this).then(this.cleanup),
     };
   }
 }
