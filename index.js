@@ -8,6 +8,7 @@ const child_process = require("child_process");
 const stringArgv = require("string-argv");
 const emptyDir = require("empty-dir");
 const crypto = require("crypto");
+const os = require("os");
 
 class ServerlessRack {
   validate() {
@@ -379,7 +380,8 @@ class ServerlessRack {
           args.push(...this.dockerArgs);
 
           const res = child_process.spawnSync("docker", args, {
-            stdio: "inherit"
+            stdio: "inherit",
+            shell: os.platform() === 'win32'
           });
           if (res.error) {
             if (res.error.code == "ENOENT") {
@@ -404,7 +406,10 @@ class ServerlessRack {
           args.push(...stringArgv.parseArgsStringToArgv(this.bundlerArgs));
         }
 
-        const res = child_process.spawnSync(this.bundlerBin, args);
+        const res = child_process.spawnSync(this.bundlerBin, args, {
+          shell: os.platform() === 'win32',
+          stdio: "inherit"
+        });
         if (res.error) {
           if (res.error.code == "ENOENT") {
             return reject(
