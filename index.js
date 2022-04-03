@@ -372,6 +372,11 @@ class ServerlessRack {
             `${this.serverless.config.servicePath}:/var/task`,
           ];
 
+          const {uid, gid} = os.userInfo();
+          if( 0 <= uid && 0 <= gid ){ // uid == -1 and gid == -1 on Windows
+            args.push("--user", `${uid}:${gid}`);
+          }
+
           if (this.bundlerArgs) {
             args.push("-e", `BUNDLER_ARGS=${this.bundlerArgs}`);
           }
