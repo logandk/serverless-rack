@@ -84,7 +84,7 @@ functions:
     handler: rack_adapter.handler
     events:
       - http: ANY /
-      - http: ANY {proxy+}
+      - http: ANY /{proxy+}
 ```
 
 ### Gemfile
