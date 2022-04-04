@@ -6,6 +6,7 @@
 
 require 'rack'
 require 'base64'
+require 'stringio'
 
 TEXT_MIME_TYPES = [
   'application/json',

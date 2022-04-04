@@ -10,6 +10,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'json'
 require 'rack'
+require 'stringio'
 
 require_relative './serverless_rack'
 
