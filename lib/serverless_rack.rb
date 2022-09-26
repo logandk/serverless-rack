@@ -45,9 +45,9 @@ end
 
 def parse_query_string(event)
   if event.include? 'multiValueQueryStringParameters'
-    Rack::Utils.build_query(event['multiValueQueryStringParameters'] || {})
+    Rack::Utils.unescape(Rack::Utils.build_query(event['multiValueQueryStringParameters'] || {}))
   else
-    Rack::Utils.build_query(event['queryStringParameters'] || {})
+    Rack::Utils.unescape(Rack::Utils.build_query(event['queryStringParameters'] || {}))
   end
 end
 
