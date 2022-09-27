@@ -28,11 +28,13 @@ class ServerlessRack {
         this.serverless.service.custom.rack
       ) {
         if (_.isBoolean(this.serverless.service.custom.rack.enableBundler)) {
-          this.enableBundler = this.serverless.service.custom.rack.enableBundler;
+          this.enableBundler =
+            this.serverless.service.custom.rack.enableBundler;
         }
 
         if (_.isBoolean(this.serverless.service.custom.rack.dockerizeBundler)) {
-          this.dockerizeBundler = this.serverless.service.custom.rack.dockerizeBundler;
+          this.dockerizeBundler =
+            this.serverless.service.custom.rack.dockerizeBundler;
         }
 
         this.bundlerArgs = this.serverless.service.custom.rack.bundlerArgs;
@@ -102,7 +104,8 @@ class ServerlessRack {
       this.serverless.service.custom.rack &&
       _.isArray(this.serverless.service.custom.rack.textMimeTypes)
     ) {
-      config.text_mime_types = this.serverless.service.custom.rack.textMimeTypes;
+      config.text_mime_types =
+        this.serverless.service.custom.rack.textMimeTypes;
     }
     if (
       this.serverless.service.custom &&
@@ -372,8 +375,9 @@ class ServerlessRack {
             `${this.serverless.config.servicePath}:/var/task`,
           ];
 
-          const {uid, gid} = os.userInfo();
-          if( 0 <= uid && 0 <= gid ){ // uid == -1 and gid == -1 on Windows
+          const { uid, gid } = os.userInfo();
+          if (0 <= uid && 0 <= gid) {
+            // uid == -1 and gid == -1 on Windows
             args.push("--user", `${uid}:${gid}`);
           }
 
@@ -386,7 +390,7 @@ class ServerlessRack {
 
           const res = child_process.spawnSync("docker", args, {
             stdio: "inherit",
-            shell: os.platform() === 'win32'
+            shell: os.platform() === "win32",
           });
           if (res.error) {
             if (res.error.code == "ENOENT") {
@@ -412,8 +416,8 @@ class ServerlessRack {
         }
 
         const res = child_process.spawnSync(this.bundlerBin, args, {
-          shell: os.platform() === 'win32',
-          stdio: "inherit"
+          shell: os.platform() === "win32",
+          stdio: "inherit",
         });
         if (res.error) {
           if (res.error.code == "ENOENT") {
@@ -586,9 +590,12 @@ class ServerlessRack {
       },
     });
     this.serverless.pluginManager.cliOptions.type = null;
-    this.serverless.pluginManager.cliOptions.f = this.serverless.pluginManager.cliOptions.function;
-    this.serverless.pluginManager.cliOptions.d = this.serverless.pluginManager.cliOptions.data;
-    this.serverless.pluginManager.cliOptions.t = this.serverless.pluginManager.cliOptions.type;
+    this.serverless.pluginManager.cliOptions.f =
+      this.serverless.pluginManager.cliOptions.function;
+    this.serverless.pluginManager.cliOptions.d =
+      this.serverless.pluginManager.cliOptions.data;
+    this.serverless.pluginManager.cliOptions.t =
+      this.serverless.pluginManager.cliOptions.type;
 
     // The invoke plugin prints the response to the console as JSON. When invoking commands
     // remotely, we get a string back and we want it to appear in the console as it would have
