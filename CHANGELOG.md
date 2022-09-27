@@ -1,3 +1,25 @@
+# 1.0.8
+
+- Add types to command arguments to avoid deprecation warnings (#25)
+
+  _Dave Nicolson_
+
+- Properly close Rack response body (#26)
+
+  _Zac Bristow_
+
+- Spawn commands correctly on Windows (#29)
+
+  _Shalvah_
+
+- Add missing stringio requirement (#31)
+
+  _Hirohisa Mitsuishi_
+
+- Add user flag to docker option (#32)
+
+  _Hirohisa Mitsuishi_
+
 # 1.0.7
 
 - Improved error handling for Docker processes (#20 and #21)

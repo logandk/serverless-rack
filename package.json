@@ -1,6 +1,6 @@
 {
   "name": "serverless-rack",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "engines": {
     "node": ">=4.0"
   },
@@ -44,17 +44,17 @@
     "rblint": "bundle exec rubocop"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.0.0",
-    "eslint": "^7.25.0",
+    "eslint": "^8.24.0",
     "istanbul": "^0.4.4",
-    "mocha": "^8.3.2",
-    "sinon": "^10.0.0"
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0"
   },
   "dependencies": {
     "bluebird": "^3.7.2",
-    "empty-dir": "^2.0.0",
-    "fs-extra": "^9.1.0",
+    "empty-dir": "^3.0.0",
+    "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "string-argv": "^0.3.1"
   }
