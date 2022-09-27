@@ -180,6 +180,31 @@ RSpec.describe 'Rack adapter' do
     )
   end
 
+  it 'handles escaped characters in parameters' do
+    @event['queryStringParameters'] = { 'param1' => 'value%231', 'param2' => 'value%232' }
+
+    handler(
+      event: @event,
+      context: { 'memory_limit_in_mb' => '128' }
+    )
+
+    expect(@app.last_environ['QUERY_STRING']).to eq('param1=value%231&param2=value%232')
+  end
+
+  it 'handles escaped characters in multi-value query string parameters' do
+    @event['multiValueQueryStringParameters'] = {
+      'param1' => ['value%231'],
+      'param2' => %w[value%232 value%233]
+    }
+
+    handler(
+      event: @event,
+      context: { 'memory_limit_in_mb' => '128' }
+    )
+
+    expect(@app.last_environ['QUERY_STRING']).to eq('param1=value%231&param2=value%232&param2=value%233')
+  end
+
   it 'handles a request in china region' do
     @event['headers']['Host'] = 'x.amazonaws.com.cn'
 
