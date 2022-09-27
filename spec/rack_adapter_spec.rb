@@ -202,7 +202,9 @@ RSpec.describe 'Rack adapter' do
       context: { 'memory_limit_in_mb' => '128' }
     )
 
-    expect(@app.last_environ['QUERY_STRING']).to eq('param1=value%231&param2=value%232&param2=value%233')
+    expect(@app.last_environ['QUERY_STRING']).to eq(
+      'param1=value%231&param2=value%232&param2=value%233'
+    )
   end
 
   it 'handles a request in china region' do
