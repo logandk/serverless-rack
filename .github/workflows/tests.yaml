@@ -18,7 +18,7 @@ jobs:
           node-version: "14"
       - run: npm install
 
-      - uses: actions/setup-ruby@v2
+      - uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
       - run: gem install bundler
