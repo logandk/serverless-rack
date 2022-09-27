@@ -1,0 +1,36 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  tests:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "2.5", ruby: "2.5", os: ubuntu-latest }
+          - { name: "2.7", ruby: "2.7", os: ubuntu-latest }
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: npm install
+
+      - uses: actions/setup-ruby@v2
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - run: gem install bundler
+      - run: bundle install
+
+      - run: npm test
+      - run: npm run lint
+      - run: npm run rbtest
+      - run: npm run rblint
+
+      - uses: codecov/codecov-action@v2
+        with:
+          token: "cbfe30a0-d7f0-4618-9ad6-d63799c09dbe"
+          fail_ci_if_error: true
+          verbose: true
