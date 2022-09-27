@@ -10,6 +10,7 @@ const path = require("path");
 const fse = require("fs-extra");
 const BbPromise = require("bluebird");
 const emptyDir = require("empty-dir");
+const os = require("os");
 
 const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
@@ -782,6 +783,7 @@ describe("serverless-rack", () => {
       var procStub = sandbox
         .stub(child_process, "spawnSync")
         .returns({ status: 0 });
+      sandbox.stub(os, "userInfo").returns({ uid: -1, gid: -1 });
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(copyStub.called).to.be.false;
         expect(writeStub.called).to.be.false;
@@ -834,6 +836,7 @@ describe("serverless-rack", () => {
       var procStub = sandbox
         .stub(child_process, "spawnSync")
         .returns({ status: 0 });
+      sandbox.stub(os, "userInfo").returns({ uid: -1, gid: -1 });
       plugin.hooks["before:package:createDeploymentArtifacts"]().then(() => {
         expect(copyStub.called).to.be.false;
         expect(writeStub.called).to.be.false;
