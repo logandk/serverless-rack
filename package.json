@@ -48,7 +48,7 @@
     "chai-as-promised": "^7.0.0",
     "eslint": "^7.25.0",
     "istanbul": "^0.4.4",
-    "mocha": "^8.3.2",
+    "mocha": "^10.0.0",
     "sinon": "^10.0.0"
   },
   "dependencies": {
