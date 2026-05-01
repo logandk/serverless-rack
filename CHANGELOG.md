@@ -1,3 +1,8 @@
+# 2.0.1
+
+- Correctly initialise `Rack::Headers` instance for events containing `multiValueHeaders`
+  _Matthew Pickin_
+
 # 2.0.0
 
 - Add support for Rack v3 (#44)

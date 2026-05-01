@@ -65,11 +65,11 @@ end
 
 def parse_headers(event)
   if event.include? 'multiValueHeaders'
-    Rack::Headers.new(
+    Rack::Headers[
       (event['multiValueHeaders'] || {}).transform_values do |value|
         value.join("\n")
       end
-    )
+    ]
   else
     Rack::Headers[event['headers'] || {}]
   end
